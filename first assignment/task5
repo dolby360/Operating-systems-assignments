@@ -1,0 +1,13 @@
+#!/bin/bash
+for fileIter in *.c; do
+    #-os            Optimization for code size
+    #-g             Default debug information
+    #-std=c11       2011 ANSI c syntaxt
+    #-c             Compile without linking
+    #-S             Remove all symbol table and relocation information from the executable.
+    #-masm=intel    Compile for intel architecture
+    #-w             Enables some extra warnings
+    gcc $fileIter -Os -w -g -std=c11 -c $fileIter;
+    gcc $fileIter -Os -g -S -std=c11 -masm=intel $fileIter;
+    gcc ${fileIter%.c}.o -Os -g -std=c11 -o ${fileIter%.c}.out;
+done

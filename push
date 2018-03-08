@@ -21,7 +21,7 @@ while true; do
     esac
 done
 
-for file in /home/user/* /home/user/**/* ; do
+for file in * ; do
 	var=${file##*/}
 done
 

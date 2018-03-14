@@ -5,7 +5,7 @@
 
 class Commands{
 private:
-
+    char* fullPath;
 public:
     Commands();
     ~Commands();

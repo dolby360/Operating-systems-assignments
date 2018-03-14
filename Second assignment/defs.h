@@ -12,5 +12,7 @@
 #include <sys/wait.h>
 
 #define MAX_PATH_LEN 16
+#define OK 0
+#define SUCCESS 0
 
 #endif

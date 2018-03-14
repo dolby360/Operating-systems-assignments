@@ -13,7 +13,7 @@ int main(){
         try{
 			com.getCurrentDirectory();
 			getline(std::cin,line);
-			//interpreter(tokenize(line),cin);
+			com.interpreter(com.pushTokens(line),std::cin);
 		}	
 		
 		//Handles the errors that may occure
@@ -28,6 +28,5 @@ int main(){
 		}
     }
 
-   
-    return 0;
+    return OK;
 }

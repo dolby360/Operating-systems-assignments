@@ -14,5 +14,8 @@
 #define MAX_PATH_LEN 16
 #define OK 0
 #define SUCCESS 0
+#define BAD_EXIT 1
+
+typedef unsigned int ui;
 
 #endif

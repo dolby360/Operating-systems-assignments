@@ -77,7 +77,7 @@ std::vector<std::string> Commands::eval(std::vector<std::string> vec){
         }
         //Use this line for debugging
         //It can show you how it went.
-        std::cout << "-- " << vec[i] << std::endl;
+        //std::cout << "--" << vec[i] << std::endl;
     }
     return newVec;
 }
@@ -95,8 +95,7 @@ void Commands::interpreter(std::vector<std::string> vec, std::istream &stream){
 
     //In case that the 
     //users entered too many args after cd
-    if(vec[0] == "cd"){ 
-        
+    if(vec[0] == "cd"){
         if(vec.size() > 2){
             printf("Too many args\n");
             exitCode = BAD_EXIT;
@@ -111,12 +110,40 @@ void Commands::interpreter(std::vector<std::string> vec, std::istream &stream){
             //To update the path
             replaceHomePath();
             exitCode = 0;
-        }
-
-        
+        }        
+    }else{
+            makeNewProcess(vec);
     }
+
+
+
     tokens.clear();
 }
+
+void Commands::makeNewProcess(std::vector<std::string> vec){
+    char **args;
+    bool zombie=false;
+    int n;
+    
+    if (vec[vec.size()-1]!="&"){
+        n=vec.size();
+    }else{
+        n=vec.size()-1;
+        zombie=true;
+    }
+    
+    args=new char*[n+1];
+    for(int i=0;i<n;i++)
+        args[i]=const_cast<char*>(vec[i].c_str());
+    args[n]=NULL;
+    
+    int pid=fork();
+    if (pid<0)
+        perror("No child was created!");
+}
+
+
+
 
 void Commands::replaceHomePath(){
     //Set corrent path and replace the home part with ~

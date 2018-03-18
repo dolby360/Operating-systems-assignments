@@ -9,5 +9,6 @@ for fileIter in *.c; do
     #-w             Enables some extra warnings
     gcc $fileIter -Os -w -g -std=c11 -c $fileIter;
     gcc $fileIter -Os -g -S -std=c11 -masm=intel $fileIter;
-    gcc ${fileIter%.c}.o -Os -g -std=c11 -o ${fileIter%.c}.out;
 done
+
+    gcc *.o -Os -g -std=c11 -o runnable;

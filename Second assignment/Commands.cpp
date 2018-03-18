@@ -138,8 +138,31 @@ void Commands::makeNewProcess(std::vector<std::string> vec){
     args[n]=NULL;
     
     int pid=fork();
+    
     if (pid<0)
         perror("No child was created!");
+
+    //Parent.
+    if(pid != 0){
+
+    //In this case this is child process
+    }else{
+        if(execvp(args[0],args) == -1){
+            /*
+            Because the error: "command not found", not supported in errno. 
+            I wrote it manually.
+            See here
+            https://linux.die.net/man/3/errno
+            Not supported: perror(msg);
+            */
+            printf("%s: command not found\n",args[0]);
+            exit(TERMINATE_PROCESS);
+        }
+    }
+    if(args){
+        delete args;
+    }
+
 }
 
 

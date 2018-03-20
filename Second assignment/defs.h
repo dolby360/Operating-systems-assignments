@@ -16,6 +16,7 @@
 #define SUCCESS 0
 #define BAD_EXIT 1
 #define TERMINATE_PROCESS 127
+#define DEFAULT_CODE 128
 
 typedef unsigned int ui;
 

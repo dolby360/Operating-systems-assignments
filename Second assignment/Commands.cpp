@@ -24,7 +24,6 @@ std::vector<std::string> Commands::pushTokens(std::string line){
 
 std::vector<std::string> Commands::eval(std::vector<std::string> vec){
     char *env;
-    std::vector<std::string> newVec(vec);
 
     //For every element in the vector
     for(ui i = 0; i < vec.size();i++){
@@ -38,6 +37,8 @@ std::vector<std::string> Commands::eval(std::vector<std::string> vec){
             if(vec[i].compare(j,1,"$") == 0 && vec[i].compare(j+1,1,"?") == 0){
                 vec[i].erase(j+1,1);
                 vec[i].replace(j,1,std::to_string(exitCode));
+                //Next line for debuging.
+                //std::cout << "------" << vec[i] << "\n";
             }
             //If we see enviromment variable
             else if(vec[i].compare(j,1,"$") == 0 && j < vec[i].size() && vec[i].compare(j+1,1,"$") != 0){
@@ -79,7 +80,7 @@ std::vector<std::string> Commands::eval(std::vector<std::string> vec){
         //It can show you how it went.
         //std::cout << "--" << vec[i] << std::endl;
     }
-    return newVec;
+    return vec;
 }
 
 void Commands::interpreter(std::vector<std::string> vec, std::istream &stream){
@@ -124,7 +125,10 @@ void Commands::makeNewProcess(std::vector<std::string> vec){
     char **args;
     bool zombie=false;
     int n;
-    
+
+    int stat = 0;
+    int temp = 0;
+
     if (vec[vec.size()-1]!="&"){
         n=vec.size();
     }else{
@@ -144,6 +148,38 @@ void Commands::makeNewProcess(std::vector<std::string> vec){
 
     //Parent.
     if(pid != 0){
+        if(zombie == true){ 
+            /*
+            waitpid(): on success, returns the process 
+            ID of the child whose state
+            has changed; if WNOHANG was specified and one or more child(ren)
+            specified by pid exist, but have not yet changed state, then 0 is  
+            returned. On error, -1 is returned.
+            */
+            temp = waitpid(-1,&stat,WNOHANG);
+            while(temp == 0){
+                temp = waitpid(-1,&stat,WNOHANG);
+            }
+            if(temp != -1){
+                WIFSIGNALED(stat);
+                exitCode = DEFAULT_CODE + WEXITSTATUS(stat);
+            }else{
+                exitCode = BAD_EXIT;
+            }
+
+        }else{
+            /*
+            * According to manual page:
+            * -1 mean - wait for any child process.
+            */
+            if(waitpid(-1,&stat,0) < 0){
+                exitCode = BAD_EXIT;
+            }
+            WIFSIGNALED(stat);
+            exitCode = DEFAULT_CODE + WEXITSTATUS(stat);
+        }
+
+
 
     //In this case this is child process
     }else{
@@ -164,9 +200,6 @@ void Commands::makeNewProcess(std::vector<std::string> vec){
     }
 
 }
-
-
-
 
 void Commands::replaceHomePath(){
     //Set corrent path and replace the home part with ~

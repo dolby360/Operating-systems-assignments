@@ -179,8 +179,6 @@ void Commands::makeNewProcess(std::vector<std::string> vec){
             exitCode = DEFAULT_CODE + WEXITSTATUS(stat);
         }
 
-
-
     //In this case this is child process
     }else{
         if(execvp(args[0],args) == -1){

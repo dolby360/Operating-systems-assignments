@@ -2,7 +2,10 @@
 
 using namespace std;
 
-void restMng::setArg(char **argv){
+int restMng::makeSharedMemory(int size,int _key){
+    key_t ftok(".",_key);
+}
+void restMng::setArgs(char **argv){
     this->simuArgs.simuTime = atoi(argv[1]);
     this->simuArgs.manItems = atoi(argv[2]);
     this->simuArgs.cusCount = atoi(argv[3]);
@@ -17,6 +20,9 @@ void restMng::printData(){
 void restMng::checkArgsAndPrintData(int argc,char **argv){
     if(argc > 5){
         cerr << "Too many arguments\n";
+        exit(1);
+    }else if(argc < 5){
+        cerr << "Too few arguments\n";
         exit(1);
     }
     for(int i = 1;i<argc;i++){

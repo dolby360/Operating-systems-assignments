@@ -21,9 +21,10 @@ class restMng{
     ~restMng(){
 
     }
-    void setArg(char **argv);
+    void setArgs(char **argv);
     void printData();
     void checkArgsAndPrintData(int argc,char **argv);
+    int  makeSharedMemory(int size,int _key);
 };
 
 

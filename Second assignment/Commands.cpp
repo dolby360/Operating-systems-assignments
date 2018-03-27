@@ -83,6 +83,7 @@ std::vector<std::string> Commands::eval(std::vector<std::string> vec){
     return vec;
 }
 
+
 void Commands::interpreter(std::vector<std::string> vec, std::istream &stream){
     if(!stream.eof() && vec.size()==0) return; //if user press only enter
 

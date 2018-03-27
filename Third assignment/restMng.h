@@ -5,7 +5,7 @@
 
 typedef struct simulationArgument{
     int simuTime;
-    int manItems;
+    int numOfItems;
     int cusCount;
     int witersCount;
 }simulationArgument;
@@ -21,10 +21,12 @@ class restMng{
     ~restMng(){
 
     }
+    void* getShmPointer(int sharedMemoryId);
     void setArgs(char **argv);
     void printData();
     void checkArgsAndPrintData(int argc,char **argv);
     int  makeSharedMemory(int size,int _key);
+    int getSimulationArguments(int index);
 };
 
 

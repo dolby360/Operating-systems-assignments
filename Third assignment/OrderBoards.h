@@ -4,7 +4,7 @@
 class Orders
 {
 	private:
-		Customer *customers;
+		//Customer *customers;
 		int numOfCustomers;
 		int shmid;
 	public:

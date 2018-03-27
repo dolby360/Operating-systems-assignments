@@ -14,7 +14,7 @@ int main(int argc,char **argv){
     menu1 = new(shmPointer)menu(mng.getSimulationArguments(NUM_OF_ITEMS));
 
     shMenuKey = mng.makeSharedMemory(SHARED_MEMORY_SIZE,2);
-    void* shmPointer = mng.getShmPointer(shMenuKey);
+    shmPointer = mng.getShmPointer(shMenuKey);
     ord = new(shmPointer)Orders(mng.getSimulationArguments(NUM_OF_ITEMS));
 
 

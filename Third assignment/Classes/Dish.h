@@ -1,6 +1,7 @@
 #ifndef DISH_H
 #define DISH_H
-#include "defs.h"
+#include "../defs.h"
+using namespace std;
 
 class Dish{
 private:

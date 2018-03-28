@@ -1,5 +1,6 @@
 #ifndef ORDER_BOARDS_H
 #define ORDER_BOARDS_H
+#include "../defs.h"
 
 class Orders
 {

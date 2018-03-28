@@ -17,7 +17,10 @@
 #define NUM_OF_ITEMS 1
 #define CUS_COUNT 2
 #define WAITERS_COUNT 3
+
 #define SHARED_MEMORY_SIZE 1024
+#define DECENT_SIZE_OF_SHARED_MEMORY 128
+
 typedef unsigned int uint;
 
 #endif

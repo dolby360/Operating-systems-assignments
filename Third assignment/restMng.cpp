@@ -1,7 +1,10 @@
 #include "restMng.h"
-
+#include "semaphore.h"
 using namespace std;
 
+void restMng::initAllSemaphores(){
+    sems.printSem = makeSemaphore(getNewKey(),0);
+}
 int restMng::getSimulationArguments(int index){
     switch(index){
         case SIM_TIME:
@@ -32,7 +35,8 @@ void* restMng::getShmPointer(int sharedMemoryId){
     }
     return pointer;
 }
-int restMng::makeSharedMemory(int size,int _key){
+int restMng::makeSharedMemory(int size){
+    int _key = getNewKey();
     int sharedMemoryId;
     key_t key = ftok(".",_key);
     sharedMemoryId = shmget(key, size, IPC_CREAT | IPC_EXCL | 0666 );

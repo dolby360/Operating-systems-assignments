@@ -1,13 +1,19 @@
 #ifndef DEFS_H
 #define DEFS_H
 
+
+#include <stdlib.h>     /* srand, rand */
+#include <time.h>       /* time */
 #include <string>
 #include <string.h>
 #include <cstdlib>
 #include <iostream>
 #include <stdio.h>
-#include  <sys/ipc.h>
-#include  <sys/shm.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <sys/time.h>
+#include <unistd.h>
+#include <iomanip> 
 #include "restMng.h"
 
 #define OK 0

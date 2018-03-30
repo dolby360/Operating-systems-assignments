@@ -12,11 +12,14 @@ typedef struct simulationArgument{
 typedef struct semaphores{
     int printSem;
 }semaphores;
+
 class restMng{
-    private:
+private:
     simulationArgument simuArgs;
     semaphores sems;
-    public:
+    timeval timStart;
+    timeval timNow;
+public:
     restMng(){
 
     }
@@ -31,6 +34,9 @@ class restMng{
     void checkArgsAndPrintData(int argc,char **argv);
     int  makeSharedMemory(int size);
     int getSimulationArguments(int index);
+
+    void switchTime();
+    void printTimeWithMsg(char *msg);
 };
 
 

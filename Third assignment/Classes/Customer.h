@@ -1,16 +1,16 @@
 #ifndef COUSTOMER_H
 #define COUSTOMER_H
-class coustomer{
+class customer{
 private:
     int id;
     int item;
     int amount;
     bool done;
 public:
-coustomer(){
+customer(){
     done  = true;
 }
-~coustomer(){}
+~customer(){}
 };
 
 #endif

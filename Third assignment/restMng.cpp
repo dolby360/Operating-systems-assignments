@@ -2,6 +2,15 @@
 #include "semaphore.h"
 using namespace std;
 
+
+void restMng::printTimeWithMsg(char *msg){
+    gettimeofday(&timNow, 0);
+	float f=(timNow.tv_sec - timStart.tv_sec) + (float)(timNow.tv_usec - timStart.tv_usec)/1000000;
+	cout << flush << fixed << setprecision(3) << f << ' ' << msg;
+}
+void restMng::switchTime(){
+    gettimeofday(&timStart,0);
+}
 void restMng::initAllSemaphores(){
     sems.printSem = makeSemaphore(getNewKey(),0);
 }
@@ -56,10 +65,12 @@ void restMng::setArgs(char **argv){
     this->simuArgs.witersCount = atoi(argv[4]);
 }
 void restMng::printData(){
+    printf("=====Simulation arguments=====\n");
     cout << "Simulation time: " << simuArgs.simuTime << endl;
     cout << "Menu items count: "<< simuArgs.numOfItems << endl;
     cout << "Customers count: " << simuArgs.cusCount << endl;
     cout << "Waiters count: "   << simuArgs.witersCount << endl;
+    printf("==============================\n");
 }
  
 void restMng::checkArgsAndPrintData(int argc,char **argv){

@@ -17,7 +17,10 @@ int main(int argc,char **argv){
     shmPointer = mng.getShmPointer(shMenuKey);
     ord = new(shmPointer)Orders(mng.getSimulationArguments(NUM_OF_ITEMS));
 
-
+    char msg[64];
+    sprintf(msg,"Main process ID %d start",getpid());
+    mng.switchTime();
+    mng.printTimeWithMsg(msg);
 
     return OK;
 }

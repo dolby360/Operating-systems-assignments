@@ -3,6 +3,19 @@
 #include "../defs.h"
 using namespace std;
 
+
+typedef enum dishes{
+    Goulash = 0,
+    Beans = 1,
+    Burger = 2,
+    Spoonbread = 3,
+    Pie = 4,
+    Blini = 5,
+    Caviar = 6,
+    Kasha = 7,
+    Kulich = 8
+}dishes;
+
 class Dish{
 private:
     int id,totalorders;
@@ -10,42 +23,21 @@ private:
     float price;
 public:
     Dish(int i, float p){
-        price=p;
-        totalorders=0;
-
-        switch((id=i)){
-            case 0:
-                name="Pizza";
-                break;
-            case 1:
-                name="Salad";
-                break;
-            case 2:
-                name="Burger";
-                break;
-            case 3:
-                name="Pasta";
-                break;
-            case 4:
-                name="Pie";
-                break;
-            case 5:
-                name="Omelet";
-                break;
-            case 6:
-                name="Coffee";
-                break;
-            case 7:
-                name="Fish";
-                break;
-            case 8:
-                name="Fries";
-                break;
-            case 9:
-                name="Lasagna";
-                break;
+        price = p;
+        totalorders = 0;
+        switch(i){
+            case Goulash:   name = "Goulash";   break;
+            case Beans:     name = "Beans";     break;
+            case Burger:    name = "Burger";    break;
+            case Spoonbread:name = "Spoonbread";break;
+            case Pie:       name = "Pie";       break;
+            case Blini:     name = "Blini";     break;
+            case Caviar:    name = "Caviar";    break;
+            case Kasha:     name = "Kasha";     break;
+            case Kulich:    name = "Kulich";    break;
+        }
     }
-}	
+	
     int getID() {return id;}
     float getPrice() {return price;}
     string getName() {return name;}

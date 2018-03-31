@@ -18,9 +18,18 @@ int main(int argc,char **argv){
     ord = new(shmPointer)Orders(mng.getSimulationArguments(NUM_OF_ITEMS));
 
     char msg[64];
+    memset(msg,'\0',64);
     sprintf(msg,"Main process ID %d start",getpid());
     mng.switchTime();
     mng.printTimeWithMsg(msg);
+    
+    menu1->printManu();
+
+    memset(msg,'\0',64);
+    strcpy(msg,"Main process starts creating sub-processes");
+    mng.printTimeWithMsg(msg);
+
+    mng.execute();
 
     return OK;
 }

@@ -7,10 +7,15 @@ private:
     int amount;
     bool done;
 public:
-customer(){
-    done  = true;
-}
-~customer(){}
+    customer(){
+        done  = true;
+    }
+    ~customer(){
+        
+    }
+    bool getDone(){return done;}
+
+
 };
 
-#endif
+#endif 

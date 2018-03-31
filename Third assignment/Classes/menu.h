@@ -33,6 +33,16 @@ public:
             // cout << " - " << allDish[i].getPrice() <<endl;
         }
     }
+    void printManu(){
+        printf("==========Menu list===========\n");
+        printf("Id\tName\tPrice\tOrders\n");
+        Dish* tmp;
+        for(int i = 0; i < numOfDish;i++){
+            tmp = &allDish[i];
+            printf("%d\t%s\t%.2f\t%d\n",tmp->getID(),tmp->getName().c_str(),tmp->getPrice(),tmp->getTotal());
+        }
+        printf("==============================\n");
+    }
 };
 
 #endif

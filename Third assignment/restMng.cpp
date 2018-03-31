@@ -1,12 +1,53 @@
 #include "restMng.h"
 #include "semaphore.h"
+#include "Classes/OrderBoards.h"
 using namespace std;
 
+//Defined in main.
+extern Orders* ord;
 
+//False - time pass
+//True  - we have more time
+bool restMng::WeAreGoodWithTime(){
+    gettimeofday(&timNow, 0);
+    if(timNow.tv_sec - timStart.tv_sec > this->simuArgs.simuTime){
+        
+        return false;
+    }
+    //For debug
+    //cout << timNow.tv_sec - timStart.tv_sec << " - " << this->simuArgs.simuTime << "\n";
+    return true;
+}
+void restMng::waiterProcess(int custId){
+
+}
+void restMng::customerProcess(int custId){
+    bool ordStatus;
+    while(WeAreGoodWithTime()){
+        sleep(util::getRandomNumberBetweenTwoWithaChanceOfHalf(3,6));
+
+        //Critical section
+        ordStatus = ord->getCustomerStatus(custId);
+        //Critical section done
+
+        if(ordStatus){
+            if(util::getTrueOrFalseWithaChanceOfHalf()){
+
+            }else{
+                continue;
+            }
+        }
+
+    }
+}
+void restMng::execute(){
+    waiterProcess(0);
+    customerProcess(0);
+}
 void restMng::printTimeWithMsg(char *msg){
     gettimeofday(&timNow, 0);
 	float f=(timNow.tv_sec - timStart.tv_sec) + (float)(timNow.tv_usec - timStart.tv_usec)/1000000;
-	cout << flush << fixed << setprecision(3) << f << ' ' << msg;
+	cout << flush << fixed << setprecision(3) << f << ' ' << msg << endl;
 }
 void restMng::switchTime(){
     gettimeofday(&timStart,0);

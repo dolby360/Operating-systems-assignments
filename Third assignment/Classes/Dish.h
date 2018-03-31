@@ -3,12 +3,11 @@
 #include "../defs.h"
 using namespace std;
 
-
 typedef enum dishes{
-    Goulash = 0,
+    Steak = 0,
     Beans = 1,
     Burger = 2,
-    Spoonbread = 3,
+    Shrimps = 3,
     Pie = 4,
     Blini = 5,
     Caviar = 6,
@@ -22,14 +21,16 @@ private:
     string name;
     float price;
 public:
-    Dish(int i, float p){
+    Dish(int identity, float p){
         price = p;
         totalorders = 0;
-        switch(i){
-            case Goulash:   name = "Goulash";   break;
+        id = identity;
+
+        switch(identity){
+            case Steak:     name = "Steak";     break;
             case Beans:     name = "Beans";     break;
             case Burger:    name = "Burger";    break;
-            case Spoonbread:name = "Spoonbread";break;
+            case Shrimps:   name = "Shrimps";   break;
             case Pie:       name = "Pie";       break;
             case Blini:     name = "Blini";     break;
             case Caviar:    name = "Caviar";    break;

@@ -37,6 +37,14 @@ public:
 
     void switchTime();
     void printTimeWithMsg(char *msg);
+    void execute();
+    
+    void waiterProcess(int waiterId);
+    void customerProcess(int custId);
+
+    //False - time pass
+    //True  - we have more time
+    bool WeAreGoodWithTime();
 };
 
 

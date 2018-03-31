@@ -24,9 +24,8 @@ class Orders
 			new (&custs[i])customer();
 		}
 	}
-	
 	~Orders() {}
-
+	bool getCustomerStatus(int customerId){return custs[customerId].getDone();}
 };
 
 

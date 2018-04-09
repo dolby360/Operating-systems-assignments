@@ -43,6 +43,9 @@ public:
         }
         printf("==============================\n");
     }
+    string getDishNameById(int i){
+        return allDish[i].getName();
+    }
 };
 
 #endif

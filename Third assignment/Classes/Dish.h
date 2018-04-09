@@ -12,7 +12,7 @@ typedef enum dishes{
     Blini = 5,
     Caviar = 6,
     Kasha = 7,
-    Kulich = 8
+    Kulich = DISH_AMOUNT
 }dishes;
 
 class Dish{
@@ -40,8 +40,13 @@ public:
     }
 	
     int getID() {return id;}
-    float getPrice() {return price;}
-    string getName() {return name;}
+    float getPrice() {return price;} 
+    string getName() {
+        if(name == ""){
+            std::cout << "Bad situation id = " << id << std::endl;
+        }
+        return name;
+    }
     int getTotal() {return totalorders;}
     void incOreder(int a) { totalorders+=a;}
 };

@@ -1,5 +1,5 @@
 #include "Commands.h"
-
+using namespace std;
 
 Commands::Commands(){
     replaceHomePath();
@@ -126,78 +126,85 @@ void Commands::makeNewProcess(std::vector<std::string> vec){
     char **args;
     bool zombie=false;
     int n;
-
-    int stat = 0;
-    int temp = 0;
-
-    if (vec[vec.size()-1]!="&"){
+    
+    if (vec[vec.size()-1]!="&")
         n=vec.size();
-    }else{
+    else{
         n=vec.size()-1;
         zombie=true;
     }
     
     args=new char*[n+1];
-    for(int i=0;i<n;i++)
-        args[i]=const_cast<char*>(vec[i].c_str());
+    for( int i = 0; i < n; i++){
+        args[i] = new char[vec[i].size()+1];
+        strcpy(args[i],vec[i].c_str());
+    }
     args[n]=NULL;
     
     int pid=fork();
-    
     if (pid<0)
         perror("No child was created!");
-
-    //Parent.
-    if(pid != 0){
-        if(zombie == true){ 
-            /*
-            waitpid(): on success, returns the process 
-            ID of the child whose state
-            has changed; if WNOHANG was specified and one or more child(ren)
-            specified by pid exist, but have not yet changed state, then 0 is  
-            returned. On error, -1 is returned.
-            */
-            temp = waitpid(-1,&stat,WNOHANG);
-            while(temp == 0){
-                temp = waitpid(-1,&stat,WNOHANG);
-            }
-            if(temp != -1){
-                WIFSIGNALED(stat);
-                exitCode = DEFAULT_CODE + WEXITSTATUS(stat);
-            }else{
-                exitCode = BAD_EXIT;
+    //parent
+    else if(pid!=0){
+        int status, pidTer,error;
+        // if not zombie
+        if (!zombie){
+            if(waitpid(pid, &status, 0) ==-1){
+                exitCode=BAD_EXIT;
+                throw runtime_error("Error occured during waitpid");
             }
 
-        }else{
-            /*
-            * According to manual page:
-            * -1 mean - wait for any child process.
-            */
-            if(waitpid(-1,&stat,0) < 0){
-                exitCode = BAD_EXIT;
-            }
-            WIFSIGNALED(stat);
-            exitCode = DEFAULT_CODE + WEXITSTATUS(stat);
+            if(WIFSIGNALED(status))
+                exitCode=DEFAULT_CODE+WTERMSIG(status);
+                
+            else if(WIFEXITED(status))
+                exitCode=WEXITSTATUS(status);
+                
+            else
+                exitCode=SUCCESS;
         }
-
-    //In this case this is child process
-    }else{
-        if(execvp(args[0],args) == -1){
-            /*
-            Because the error: "command not found", not supported in errno. 
-            I wrote it manually.
-            See here
-            https://linux.die.net/man/3/errno
-            Not supported: perror(msg);
-            */
-            printf("%s: command not found\n",args[0]);
-            exit(TERMINATE_PROCESS);
+        // if background zombie
+        else{
+            cout << '[' << pid << ']' << endl;
+            exitCode=SUCCESS;
+        }
+        /*
+        waitpid(): on success, returns the process 
+        ID of the child whose state
+        has changed; if WNOHANG was specified and one or more child(ren)
+        specified by pid exist, but have not yet changed state, then 0 is  
+        returned. On error, -1 is returned.
+        */
+        if((pidTer = waitpid(-1, &status, WNOHANG)) > 0){
+            if(WIFSIGNALED(status))
+                error=DEFAULT_CODE+WTERMSIG(status);
+            
+            else if(WIFEXITED(status))
+                error=WEXITSTATUS(status);
+            
+            else
+                error=SUCCESS;
+                
+            cout << '[' << pidTer << "]: exited, status=" << error << endl;
+        }		
+    }
+    else //child process
+    {
+        /*
+        Because the error: "command not found", not supported in errno. 
+        I wrote it manually.
+        See here
+        https://linux.die.net/man/3/errno
+        Not supported: perror(msg);
+        */
+        if(execvp(args[0],args) ==-1)
+        {
+            cout << vec[0]+": command not found" << endl;
+            exit(BAD_EXIT);
         }
     }
-    if(args){
-        delete args;
-    }
-
+    if(args)
+        delete [] args;
 }
 
 void Commands::replaceHomePath(){

@@ -31,5 +31,11 @@ int main(int argc,char **argv){
 
     mng.execute();
 
+
+
+
+
+
+    cout << "THE END\n";
     return OK;
 }

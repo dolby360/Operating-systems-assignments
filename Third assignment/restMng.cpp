@@ -1,10 +1,12 @@
 #include "restMng.h"
 #include "semaphore.h"
 #include "Classes/OrderBoards.h"
+#include "Classes/menu.h"
 using namespace std;
 
 //Defined in main.
 extern Orders* ord;
+extern menu* menu1;
 
 //False - time pass
 //True  - we have more time
@@ -19,30 +21,63 @@ bool restMng::WeAreGoodWithTime(){
     return true;
 }
 void restMng::waiterProcess(int custId){
-
+    int custumerIdForOrder = -1;
+    while(WeAreGoodWithTime()){
+    
+        sleep(util::getRandomNumberBetweenTwoWithaChanceOfHalf(1,2));
+        //Critical section
+        custumerIdForOrder = ord->checkForOrders();
+        if(custumerIdForOrder != -1){
+            cout << custumerIdForOrder << endl;
+        }
+        //End of critical section
+    }
 }
 void restMng::customerProcess(int custId){
     bool ordStatus;
+    char dishOrd[64];
+    char msg[64];
+    
     while(WeAreGoodWithTime()){
         sleep(util::getRandomNumberBetweenTwoWithaChanceOfHalf(3,6));
-
+        
         //Critical section
         ordStatus = ord->getCustomerStatus(custId);
         //Critical section done
-
+        
         if(ordStatus){
             if(util::getTrueOrFalseWithaChanceOfHalf()){
+                //Critical section
 
+                //Here we also set the dish
+                ord->picRandomItemAndAmount(custId);
+                strcpy(dishOrd,menu1->getDishNameById(ord->getOrderNumber(custId)).c_str());
+                //Critical section done
+                sprintf(msg,"Customer ID %d: reads a menu about %s",custId,dishOrd);
+                printTimeWithMsg(msg);
             }else{
                 continue;
             }
         }
-
     }
 }
 void restMng::execute(){
-    waiterProcess(0);
-    customerProcess(0);
+    int pid=0;
+	for(int i=0; i<1; i++){
+        pid = fork();
+		if (pid){	
+            
+            cout << "pid - " << pid << endl;
+			waiterProcess(i);
+		}
+    }    
+	for(int i=0; i<1; i++){
+        pid = fork();
+		if (pid){	
+            cout << "pid - " << pid << endl;
+			customerProcess(i);
+		}
+    }    
 }
 void restMng::printTimeWithMsg(char *msg){
     gettimeofday(&timNow, 0);

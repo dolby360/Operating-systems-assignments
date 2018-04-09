@@ -22,10 +22,27 @@ class Orders
 
 		for(int i = 0; i < numOfCustomers;i++){
 			new (&custs[i])customer();
+			custs[i].setDone(true);
 		}
 	}
 	~Orders() {}
 	bool getCustomerStatus(int customerId){return custs[customerId].getDone();}
+	void picRandomItemAndAmount(int custID){
+		custs[custID].setItem(util::chooseRandomlyBetweenRange(0,DISH_AMOUNT));
+		custs[custID].setAmount(util::chooseRandomlyBetweenRange(0,4));
+		custs[custID].setDone(false);
+	}
+	int getOrderNumber(int customerId){
+		return custs[customerId].getItem();
+	}
+	int checkForOrders(){
+		for(int i = 0; i < numOfCustomers;i++){
+			if(!custs[i].getDone()){
+				return i;
+			}
+		}
+		return -1;
+	}
 };
 
 

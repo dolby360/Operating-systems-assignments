@@ -48,7 +48,7 @@ public:
         return name;
     }
     int getTotal() {return totalorders;}
-    void incOreder(int a) { totalorders+=a;}
+    void incOreder(int a) { totalorders+=a; }
 };
 
 #endif

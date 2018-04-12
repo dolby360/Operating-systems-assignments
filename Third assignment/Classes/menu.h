@@ -29,8 +29,8 @@ public:
             if(randomPrice < 10){randomPrice +=10;}
             new(&allDish[i])Dish(i,randomPrice);
             //Next lines for debug;
-            // printf("%f",randomPrice);
-            // cout << " - " << allDish[i].getPrice() <<endl;
+            //printf("%f",randomPrice);
+            //cout << " - " << allDish[i].getName() <<endl;
         }
     }
     void printManu(){

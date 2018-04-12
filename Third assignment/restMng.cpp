@@ -27,9 +27,9 @@ void restMng::waiterProcess(int custId){
         sleep(util::getRandomNumberBetweenTwoWithaChanceOfHalf(1,2));
         //Critical section
         custumerIdForOrder = ord->checkForOrders();
-        if(custumerIdForOrder != -1){
-            cout << custumerIdForOrder << endl;
-        }
+        // if(custumerIdForOrder != -1){
+        //     cout << custumerIdForOrder << endl;
+        // }
         //End of critical section
     }
 }
@@ -61,24 +61,26 @@ void restMng::customerProcess(int custId){
         }
     }
 }
-void restMng::execute(){
+int restMng::execWaiter(){
     int pid=0;
 	for(int i=0; i<1; i++){
-        pid = fork();
-		if (pid){	
-            
-            cout << "pid - " << pid << endl;
+		if (!(pid = fork()))){	
+            //cout << "pid - " << pid << endl;
 			waiterProcess(i);
 		}
     }    
-	for(int i=0; i<1; i++){
+    return pid;
+}
+void restMng::execCust(int pid){
+    for(int i=0; i<1; i++){
         pid = fork();
-		if (pid){	
-            cout << "pid - " << pid << endl;
+		if (!(pid = fork()))){	
+            //cout << "pid - " << pid << endl;
 			customerProcess(i);
-		}
+		} 
     }    
 }
+
 void restMng::printTimeWithMsg(char *msg){
     gettimeofday(&timNow, 0);
 	float f=(timNow.tv_sec - timStart.tv_sec) + (float)(timNow.tv_usec - timStart.tv_usec)/1000000;

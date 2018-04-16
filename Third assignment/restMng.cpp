@@ -2,6 +2,7 @@
 #include "semaphore.h"
 #include "Classes/OrderBoards.h"
 #include "Classes/menu.h"
+#include "lockerMng.h"
 using namespace std;
 
 //Defined in main.
@@ -13,72 +14,125 @@ extern menu* menu1;
 bool restMng::WeAreGoodWithTime(){
     gettimeofday(&timNow, 0);
     if(timNow.tv_sec - timStart.tv_sec > this->simuArgs.simuTime){
-        
         return false;
     }
     //For debug
     //cout << timNow.tv_sec - timStart.tv_sec << " - " << this->simuArgs.simuTime << "\n";
     return true;
 }
-void restMng::waiterProcess(int custId){
+void restMng::initAllSemaphores(){
+    clientsAmount = simuArgs.cusCount;
+    lockerMng::initAllSemaphores();
+}
+
+void restMng::waiterProcess(int wId){
+    srand(static_cast <unsigned> (time(0)) ^ (getpid() << 16));
     int custumerIdForOrder = -1;
+    char msg[64];
+    bool condition = true; 
+
+    down(Sems.stdOutMutex);
+    memset(msg,'\0',64);
+    sprintf(msg,"Waiter %d: created PID %d PPID %d",wId,getpid(),getppid());
+    mng.printTimeWithMsg(msg);
+	up(Sems.stdOutMutex);
+
     while(WeAreGoodWithTime()){
-    
         sleep(util::getRandomNumberBetweenTwoWithaChanceOfHalf(1,2));
-        //Critical section
+        //Critical section READ FROM ORDERS
+        ordersReadEntry();
         custumerIdForOrder = ord->checkForOrders();
-        // if(custumerIdForOrder != -1){
-        //     cout << custumerIdForOrder << endl;
-        // }
-        //End of critical section
+        ordersReadExit();
+        //Critical section done READ FROM ORDERS
     }
 }
 void restMng::customerProcess(int custId){
-    bool ordStatus;
+    srand(static_cast <unsigned> (time(0)) ^ (getpid() << 16));
+    bool customerAlreadyOrderSomething;
+    bool customerWantsToOrderSomething;
     char dishOrd[64];
-    char msg[64];
-    
-    while(WeAreGoodWithTime()){
-        sleep(util::getRandomNumberBetweenTwoWithaChanceOfHalf(3,6));
-        
-        //Critical section
-        ordStatus = ord->getCustomerStatus(custId);
-        //Critical section done
-        
-        if(ordStatus){
-            if(util::getTrueOrFalseWithaChanceOfHalf()){
-                //Critical section
+    char msg[128];
+    int orderNumber;
+    int amountOfItemsOrdered;
+    int slp;
+    //Critical section WRITE TO STDOUT
+    down(Sems.stdOutMutex);
+    memset(msg,'\0',128);
+    sprintf(msg,"Customer %d: created PID %d PPID %d",custId,getpid(),getppid());
+    mng.printTimeWithMsg(msg);
+    up(Sems.stdOutMutex);
+    //Critical section WRITE TO STDOUT done
 
-                //Here we also set the dish
-                ord->picRandomItemAndAmount(custId);
-                strcpy(dishOrd,menu1->getDishNameById(ord->getOrderNumber(custId)).c_str());
-                //Critical section done
-                sprintf(msg,"Customer ID %d: reads a menu about %s",custId,dishOrd);
+    while(WeAreGoodWithTime()){
+        
+        down(Sems.takeaNap);
+        slp = (3 + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (7-3))));
+        up(Sems.takeaNap);
+        sleep(slp);
+
+        //Critical section READ FROM ORDERS
+        ordersReadEntry();
+        customerAlreadyOrderSomething = ord->getCustomerStatus(custId);
+        ordersReadExit();
+        //Critical section done READ FROM ORDERS
+
+        if(customerAlreadyOrderSomething){
+            customerWantsToOrderSomething = util::getTrueOrFalseWithaChanceOfHalf();
+
+            //Critical section WRITE TO ORDERS
+            ordersWriteEntry();
+            ord->picRandomItemAndAmount_andPlaceOrder(amountOfItemsOrdered,custId,customerWantsToOrderSomething);//Here we also set the dish
+            ordersWriteExit();
+            //Critical section done WRITE TO ORDERS
+
+            //Critical section READ FROM ORDERS
+            ordersReadEntry();
+            orderNumber = ord->getOrderNumber(custId);
+            ordersReadExit();
+            //Critical section done READ FROM ORDERS
+
+            //Critical section READ FROM MENU
+            menuReadEntry();
+            strcpy(dishOrd,menu1->getDishNameById(orderNumber).c_str());
+            menuReadExit();
+            //Critical section done READ FROM MENU
+
+            if(customerWantsToOrderSomething){
+                //Critical section WRITE TO STDOUT
+                down(Sems.stdOutMutex);
+                sprintf(msg,"Customer ID %d: reads a menu about %s (ordered,amount %d)",custId,dishOrd,amountOfItemsOrdered);
                 printTimeWithMsg(msg);
+                up(Sems.stdOutMutex);
+                //Critical section WRITE TO STDOUT done 
             }else{
-                continue;
+                //Critical section WRITE TO STDOUT
+                down(Sems.stdOutMutex);
+                sprintf(msg,"Customer ID %d: reads a menu about %s (doesn't want to order)",custId,dishOrd);
+                printTimeWithMsg(msg);
+                up(Sems.stdOutMutex);
+                //Critical section WRITE TO STDOUT done 
             }
         }
     }
 }
-int restMng::execWaiter(){
-    int pid=0;
-	for(int i=0; i<1; i++){
-		if (!(pid = fork()))){	
-            //cout << "pid - " << pid << endl;
+pid_t restMng::execWaiter(){
+	pid_t pid = fork();
+	for(int i=0; i<0; i++)	
+		if (pid == 0){	
 			waiterProcess(i);
-		}
-    }    
-    return pid;
+            break;
+		}else{
+            pid = fork();
+        }
+	return pid;
 }
-void restMng::execCust(int pid){
-    for(int i=0; i<1; i++){
-        pid = fork();
-		if (!(pid = fork()))){	
-            //cout << "pid - " << pid << endl;
+
+void restMng::execCust(pid_t pid){
+	for(int i=0; i<20; i++)
+		if (!(pid=fork())){	
 			customerProcess(i);
-		} 
-    }    
+            break;
+		}  
 }
 
 void restMng::printTimeWithMsg(char *msg){
@@ -89,9 +143,7 @@ void restMng::printTimeWithMsg(char *msg){
 void restMng::switchTime(){
     gettimeofday(&timStart,0);
 }
-void restMng::initAllSemaphores(){
-    sems.printSem = makeSemaphore(getNewKey(),0);
-}
+
 int restMng::getSimulationArguments(int index){
     switch(index){
         case SIM_TIME:

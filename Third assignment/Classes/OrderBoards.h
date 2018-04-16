@@ -27,11 +27,17 @@ class Orders
 	}
 	~Orders() {}
 	bool getCustomerStatus(int customerId){return custs[customerId].getDone();}
-	void picRandomItemAndAmount(int custID){
-		custs[custID].setItem(util::chooseRandomlyBetweenRange(0,DISH_AMOUNT));
-		custs[custID].setAmount(util::chooseRandomlyBetweenRange(0,4));
-		custs[custID].setDone(false);
-	}
+	
+	void picRandomItemAndAmount_andPlaceOrder(int &amount,int custID,bool TheCustomerWantToOrder){
+		amount = util::chooseRandomlyBetweenRange(1,4);
+		if(TheCustomerWantToOrder){
+			custs[custID].setItem(util::chooseRandomlyBetweenRange(0,DISH_AMOUNT));
+			custs[custID].setAmount(amount);
+			custs[custID].setDone(false);
+		}else{
+			custs[custID].setItem(util::chooseRandomlyBetweenRange(0,DISH_AMOUNT));
+		}
+	}	
 	int getOrderNumber(int customerId){
 		return custs[customerId].getItem();
 	}

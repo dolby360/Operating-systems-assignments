@@ -42,9 +42,9 @@ public:
     int getID() {return id;}
     float getPrice() {return price;} 
     string getName() {
-        if(name == ""){
-            std::cout << "Bad situation id = " << id << std::endl;
-        }
+        // if(name == ""){
+        //     std::cout << "Bad situation id = " << id << std::endl;
+        // }
         return name;
     }
     int getTotal() {return totalorders;}

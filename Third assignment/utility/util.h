@@ -1,6 +1,7 @@
 #ifndef UTIL_H
 #define UTIL_H
 #include "../defs.h"
+#include <cstdlib>
 
 class util{
 private:
@@ -9,9 +10,11 @@ public:
     util(){}
     ~util(){}
 
-    static int getRandomNumberBetweenTwoWithaChanceOfHalf(int a,int b){
-        if(rand()%2){return a;}
-        return b;
+    static int getRandomNumberBetweenTwoWithaChanceOfHalf(int min,int max){
+        //std::cout << "-------------------"<<rand()<< "   " << rand() << "   " << rand() << std::endl;
+        return (min + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (max-min))));
+        // if(rand()%2){return a;}
+        // return b;
     }
     static bool getTrueOrFalseWithaChanceOfHalf(){
         return rand()%2 == 0;

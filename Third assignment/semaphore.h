@@ -10,4 +10,8 @@
 
 int makeSemaphore(int key,int value);
 
+void up(int semid);
+void down(int semid);
+int getSemVal(int semid, int semnum);
+
 #endif

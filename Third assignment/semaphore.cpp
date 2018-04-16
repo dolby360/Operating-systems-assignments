@@ -26,3 +26,33 @@ int makeSemaphore(int key,int value){
     }
     return semaphoreId;
 }
+
+void up(int semid){
+    struct sembuf sops;
+	sops.sem_num = 0;
+	sops.sem_op = 1;
+	sops.sem_flg = 0;
+
+	if (semop(semid,&sops,1)==-1){
+		cerr << "Up Failed" << endl;
+		exit(1);
+	}//else{spot on!}
+}
+void down(int semid){
+	struct sembuf sops;
+	sops.sem_num = 0;
+	sops.sem_op = -1;
+	sops.sem_flg = 0;
+
+	if (semop(semid,&sops,1)==-1){
+		cerr << "Down Failed" << endl;
+		exit(1);
+	}//else{spot on!}
+}
+
+int getSemVal(int semid, int semnum){
+	return(semctl(semid, semnum, GETVAL, 0));
+}
+
+
+

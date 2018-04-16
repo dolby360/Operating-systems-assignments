@@ -1,32 +1,24 @@
 #ifndef REST_H
 #define REST_H
 
-#include "defs.h"
-static uint newKey = 0;
+#include "lockerMng.h"
+// class lockerMng;
+
 typedef struct simulationArgument{
     int simuTime;
     int numOfItems;
     int cusCount;
     int witersCount;
 }simulationArgument;
-typedef struct semaphores{
-    int printSem;
-}semaphores;
 
-class restMng{
+class restMng: public lockerMng{
 private:
     simulationArgument simuArgs;
-    semaphores sems;
     timeval timStart;
     timeval timNow;
 public:
-    restMng(){
-
-    }
-    ~restMng(){
-
-    }
-    int getNewKey(){return newKey++;}
+    restMng(){}
+    ~restMng(){}
     void initAllSemaphores();
     void* getShmPointer(int sharedMemoryId);
     void setArgs(char **argv);
@@ -38,8 +30,8 @@ public:
     void switchTime();
     void printTimeWithMsg(char *msg);
     int execWaiter();
-    void execCust(int pid);
-    void waiterProcess(int waiterId);
+    void execCust(pid_t pid);
+    void waiterProcess(int wId);
     void customerProcess(int custId);
 
     //False - time pass

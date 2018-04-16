@@ -8,7 +8,7 @@ Orders* ord;
 
 int main(int argc,char **argv){
     int stat;
-    int pid = 0;
+    pid_t pid = getpid();
     mng.checkArgsAndPrintData(argc,argv);
 
     int shMenuKey = mng.makeSharedMemory(SHARED_MEMORY_SIZE);
@@ -18,6 +18,8 @@ int main(int argc,char **argv){
     shMenuKey = mng.makeSharedMemory(SHARED_MEMORY_SIZE);
     shmPointer = mng.getShmPointer(shMenuKey);
     ord = new(shmPointer)Orders(mng.getSimulationArguments(NUM_OF_ITEMS));
+
+    mng.initAllSemaphores();
 
     char msg[64];
     memset(msg,'\0',64);
@@ -33,10 +35,9 @@ int main(int argc,char **argv){
 
     pid = mng.execWaiter();
 
-    if(pid){
+    if(pid != 0){
         mng.execCust(pid);
         //Here the parent waits for the sub-processes to end
-        cout << "THE END\n";
         while ((waitpid(-1, &stat, 0)) > 0);
     }
     return OK;

@@ -17,13 +17,14 @@ typedef enum dishes{
 
 class Dish{
 private:
-    int id,totalorders;
+    int id;
+    int totalOrders;
     string name;
     float price;
 public:
     Dish(int identity, float p){
         price = p;
-        totalorders = 0;
+        totalOrders = 0;
         id = identity;
 
         switch(identity){
@@ -47,8 +48,9 @@ public:
         // }
         return name;
     }
-    int getTotal() {return totalorders;}
-    void incOreder(int a) { totalorders+=a; }
+    int getTotal() {return totalOrders;}
+    int getAmountOfOrd(){return totalOrders;}
+    void addOneToTotalOrders() { totalOrders++; }
 };
 
 #endif

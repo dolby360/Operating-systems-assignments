@@ -43,8 +43,15 @@ public:
         }
         printf("==============================\n");
     }
+    //i means dish index...
     string getDishNameById(int i){
         return allDish[i].getName();
+    }
+    void increaseAmountOfOrdersOfA_Dish(int i){
+        allDish[i].addOneToTotalOrders();
+    }
+    void howManyOfThisWasOrdered(int i){
+        allDish[i].getAmountOfOrd();
     }
 };
 

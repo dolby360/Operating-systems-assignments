@@ -28,9 +28,11 @@ void restMng::initAllSemaphores(){
 void restMng::waiterProcess(int wId){
     srand(static_cast <unsigned> (time(0)) ^ (getpid() << 16));
     int custumerIdForOrder = -1;
-    char msg[64];
+    char msg[128];
     bool condition = true; 
-
+    int orderNumber;
+    char dishOrd[64];
+    int amountOfItemsOrdered;
     down(Sems.stdOutMutex);
     memset(msg,'\0',64);
     sprintf(msg,"Waiter %d: created PID %d PPID %d",wId,getpid(),getppid());
@@ -44,6 +46,49 @@ void restMng::waiterProcess(int wId){
         custumerIdForOrder = ord->checkForOrders();
         ordersReadExit();
         //Critical section done READ FROM ORDERS
+
+        if(custumerIdForOrder == -1){
+            continue;
+        }
+        //--------------------------------GET ORDER NUMBER AND AMOUNT---------------------------------
+        //Critical section READ FROM ORDERS
+        ordersReadEntry();
+        orderNumber = ord->getOrderNumber(custumerIdForOrder);
+        ordersReadExit();
+        //Critical section done READ FROM ORDERS
+
+        //Critical section READ FROM ORDERS
+        ordersReadEntry();
+        int amount = ord->getAmountOfOrders(custumerIdForOrder);
+        ordersReadExit();
+        //Critical section done READ FROM ORDERS
+        //---------------------------------------------------------------------------------------------
+        
+        //Critical section WRITE TO ORDERS
+        ordersWriteEntry();
+        ord->setDown(custumerIdForOrder);
+        ordersWriteExit();
+        //Critical section WRITE TO ORDERS ends
+        
+        //Critical section WRITE TO MENU
+        menuWriteEntry();
+        menu1->increaseAmountOfOrdersOfA_Dish(orderNumber);
+        menuWriteExit();
+        //Critical section done WRITE TO MENU
+
+        //Critical section READ FROM MENU
+        menuReadEntry();
+        strcpy(dishOrd,menu1->getDishNameById(orderNumber).c_str());
+        menuReadExit();
+        //Critical section done READ FROM MENU
+
+        //Critical section WRITE TO STDOUT
+        down(Sems.stdOutMutex);
+        sprintf(msg,"Waiter ID %d: performs the order of customer ID %d (%d %s)",wId,custumerIdForOrder,amount,dishOrd);
+        printTimeWithMsg(msg);
+        up(Sems.stdOutMutex);
+        //Critical section WRITE TO STDOUT done 
+
     }
 }
 void restMng::customerProcess(int custId){
@@ -117,22 +162,24 @@ void restMng::customerProcess(int custId){
 }
 pid_t restMng::execWaiter(){
 	pid_t pid = fork();
-	for(int i=0; i<0; i++)	
+	for(int i = 0; i< simuArgs.witersCount ; i++){	
 		if (pid == 0){	
 			waiterProcess(i);
             break;
 		}else{
             pid = fork();
         }
+    }
 	return pid;
 }
 
 void restMng::execCust(pid_t pid){
-	for(int i=0; i<20; i++)
+	for(int i=0; i< simuArgs.cusCount; i++){
 		if (!(pid=fork())){	
 			customerProcess(i);
             break;
 		}  
+    }
 }
 
 void restMng::printTimeWithMsg(char *msg){
@@ -175,6 +222,7 @@ void* restMng::getShmPointer(int sharedMemoryId){
     return pointer;
 }
 int restMng::makeSharedMemory(int size){
+    // int _key = getNewKey();
     int _key = getNewKey();
     int sharedMemoryId;
     key_t key = ftok(".",_key);

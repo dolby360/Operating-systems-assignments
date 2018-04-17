@@ -9,6 +9,7 @@ private:
 public:
     customer(){
         done = true;
+        amount = -1;
     }
     ~customer(){
         
@@ -16,11 +17,11 @@ public:
     bool getDone(){return done;}
     int getId(){return id;}
     int getItem(){return item;}
-    int getAmount(){return amount;}
+    int getAmount(){return this->amount;}
 
     void setId(int val){id = val;}
     void setItem(int val){item = val;}
-    void setAmount(int val){amount = val;}
+    void setAmount(int val){this->amount = val;}
     void setDone(bool var){done = var;}
 };
 

@@ -25,7 +25,7 @@ class Orders
 			custs[i].setDone(true);
 		}
 	}
-	~Orders() {}
+	~Orders(){}
 	bool getCustomerStatus(int customerId){return custs[customerId].getDone();}
 	
 	void picRandomItemAndAmount_andPlaceOrder(int &amount,int custID,bool TheCustomerWantToOrder){
@@ -38,6 +38,9 @@ class Orders
 			custs[custID].setItem(util::chooseRandomlyBetweenRange(0,DISH_AMOUNT));
 		}
 	}	
+	int getAmountOfOrders(int CI){
+		return custs[CI].getAmount();
+	}
 	int getOrderNumber(int customerId){
 		return custs[customerId].getItem();
 	}
@@ -48,6 +51,9 @@ class Orders
 			}
 		}
 		return -1;
+	}
+	void setDown(int custID){
+		custs[custID].setDone(true);
 	}
 };
 

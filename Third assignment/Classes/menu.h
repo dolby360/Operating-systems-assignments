@@ -45,7 +45,7 @@ public:
     }
     //i means dish index...
     string getDishNameById(int i){
-        return allDish[i].getName();
+        return allDish[i].getName(i);
     }
     void increaseAmountOfOrdersOfA_Dish(int i){
         allDish[i].addOneToTotalOrders();

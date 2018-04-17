@@ -70,6 +70,12 @@ void restMng::waiterProcess(int wId){
         ordersWriteExit();
         //Critical section WRITE TO ORDERS ends
         
+        // //Critical section WRITE TO STDOUT
+        // down(Sems.stdOutMutex);
+        // printf("pid = %d\ncustomer id =%d\norder number =%d\namount = %d\n",getpid(),custumerIdForOrder,orderNumber,amount);
+        // up(Sems.stdOutMutex);
+        // //Critical section WRITE TO STDOUT done 
+
         //Critical section WRITE TO MENU
         menuWriteEntry();
         menu1->increaseAmountOfOrdersOfA_Dish(orderNumber);

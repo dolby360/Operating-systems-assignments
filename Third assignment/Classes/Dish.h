@@ -42,10 +42,20 @@ public:
 	
     int getID() {return id;}
     float getPrice() {return price;} 
-    string getName() {
-        // if(name == ""){
-        //     std::cout << "Bad situation id = " << id << std::endl;
-        // }
+    string getName(int i = 0) {
+        if(name == ""){
+            switch(i){
+                case Steak:     return "Steak";   
+                case Beans:     return "Beans";   
+                case Burger:    return "Burger";  
+                case Shrimps:   return "Shrimps"; 
+                case Pie:       return "Pie";     
+                case Blini:     return "Blini";   
+                case Caviar:    return "Caviar";  
+                case Kasha:     return "Kasha";   
+                case Kulich:    return "Kulich";  
+            }
+        }
         return name;
     }
     int getTotal() {return totalOrders;}

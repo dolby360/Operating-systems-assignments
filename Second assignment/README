@@ -1,2 +1,9 @@
-Dolev Ben-Aharon	203723036
-Adir Abuhazera		208903765 
+The main thing here was to make our own shell.
+So this is what I did here:
+Parsing the commands.
+Switching all environment variables to their actual values.
+
+Then:
+If the command wasn't cd.
+I forked a new process for the command and then execute it.
+You can see that I support zombies commands.

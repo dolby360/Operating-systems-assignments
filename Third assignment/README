@@ -1,0 +1,13 @@
+To run this execute the script compileAndRun.sh
+
+This code simulating a resturant with a waiters and customers.
+I used semaphores to control and schedule the processes. you can also see that I used reader writers algorithm for this assignmment.
+
+The main runs the restMng that take care of all the processes.
+
+restMng inhariate from lickerMng that controlls semaphores
+
+menu holds Dish
+orderBoards holds customers
+
+so this design for my opinion wasn't so good. but I kept it as it is for times reasons.

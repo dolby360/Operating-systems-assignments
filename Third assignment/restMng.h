@@ -29,8 +29,7 @@ public:
 
     void switchTime();
     void printTimeWithMsg(char *msg);
-    int execWaiter();
-    void execCust(pid_t pid);
+    pid_t execWaiterAndCust();
     void waiterProcess(int wId);
     void customerProcess(int custId);
 

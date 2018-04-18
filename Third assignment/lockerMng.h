@@ -6,15 +6,15 @@
 
 typedef struct semaphores{
 	int stdOutMutex;
-	int endSimSem;
-	int readMenuCount;
-	int readOrdersCount;
-	int writeMenuCount;
+	int countAllClients;
+	int menuReaderCounter;
+	int orderReaderCounter;
+	int writerMenuCounter;
 	int writeOrdersCount;
-	int rmutexMenu;
-	int rmutexOrders;
-	int wmutexMenu;
-	int wmutexOrders;
+	int readMutexMenu;
+	int readMutexOrders;
+	int writeMutexMenu;
+	int writeMutexOrders;
 	int readTryMenu;
 	int readTryOrders;
 	int resourceMenu;
@@ -32,91 +32,92 @@ public:
     int getNewKey(){return newKey++;}
     virtual void initAllSemaphores(){
         Sems.stdOutMutex=makeSemaphore(5,1);
-        Sems.endSimSem=makeSemaphore(6,clientsAmount);
-        Sems.readMenuCount=makeSemaphore(7,0);
-        Sems.readOrdersCount=makeSemaphore(8,0);
-        Sems.writeMenuCount=makeSemaphore(9,0);
+        //I used this semaphore to assure that all customers get what they wants
+        Sems.countAllClients=makeSemaphore(6,clientsAmount);
+        Sems.menuReaderCounter=makeSemaphore(7,0);
+        Sems.orderReaderCounter=makeSemaphore(8,0);
+        Sems.writerMenuCounter=makeSemaphore(9,0);
         Sems.writeOrdersCount=makeSemaphore(10,0);
-        Sems.rmutexMenu=makeSemaphore(11,1);
-        Sems.rmutexOrders=makeSemaphore(12,1);
-        Sems.wmutexMenu=makeSemaphore(13,1);
-        Sems.wmutexOrders=makeSemaphore(14,1);
+        Sems.readMutexMenu=makeSemaphore(11,1);
+        Sems.readMutexOrders=makeSemaphore(12,1);
+        Sems.writeMutexMenu=makeSemaphore(13,1);
+        Sems.writeMutexOrders=makeSemaphore(14,1);
         Sems.readTryMenu=makeSemaphore(15,1);
         Sems.readTryOrders=makeSemaphore(16,1);
         Sems.resourceMenu=makeSemaphore(17,1);
         Sems.resourceOrders=makeSemaphore(18,1);
         Sems.takeaNap=makeSemaphore(19,1);
-        // std::cout << "1)----------------" << getSemVal(Sems.readMenuCount,0) << std::endl;
-        // std::cout << "2)----------------" << getSemVal(Sems.wmutexMenu,0)<< std::endl;
+        // std::cout << "1)----------------" << getSemVal(Sems.menuReaderCounter,0) << std::endl;
+        // std::cout << "2)----------------" << getSemVal(Sems.writeMutexMenu,0)<< std::endl;
         // std::cout << "3)----------------" << getSemVal(Sems.stdOutMutex,0)<< std::endl;
-        // std::cout << "4)----------------" << getSemVal(Sems.wmutexOrders,0)<< std::endl;
+        // std::cout << "4)----------------" << getSemVal(Sems.writeMutexOrders,0)<< std::endl;
         // std::cout << "5)----------------" << getSemVal(Sems.writeOrdersCount,0)<< std::endl;
-        // std::cout << "6)----------------" << getSemVal(Sems.readOrdersCount,0)<< std::endl;
+        // std::cout << "6)----------------" << getSemVal(Sems.orderReaderCounter,0)<< std::endl;
         // std::cout << "7)----------------" << getSemVal(Sems.takeaNap,0)<< std::endl;
     }
     void menuWriteEntry(){
-        down(Sems.wmutexMenu);
-        up(Sems.writeMenuCount);
-        if(getSemVal(Sems.writeMenuCount,0)==1)
+        down(Sems.writeMutexMenu);
+        up(Sems.writerMenuCounter);
+        if(getSemVal(Sems.writerMenuCounter,0)==1)
             down(Sems.readTryMenu);
-        up(Sems.wmutexMenu);
+        up(Sems.writeMutexMenu);
         down(Sems.resourceMenu);
     }
     void menuWriteExit(){
         up(Sems.resourceMenu);
-        down(Sems.wmutexMenu);
-        down(Sems.writeMenuCount);
-        if(getSemVal(Sems.writeMenuCount,0)==0)
+        down(Sems.writeMutexMenu);
+        down(Sems.writerMenuCounter);
+        if(getSemVal(Sems.writerMenuCounter,0)==0)
             up(Sems.readTryMenu);
-        up(Sems.wmutexMenu);
+        up(Sems.writeMutexMenu);
     }
     void ordersWriteEntry(){
-        down(Sems.wmutexOrders);
+        down(Sems.writeMutexOrders);
         up(Sems.writeOrdersCount);
         if(getSemVal(Sems.writeOrdersCount,0)==1)
             down(Sems.readTryOrders);
-        up(Sems.wmutexOrders);
+        up(Sems.writeMutexOrders);
         down(Sems.resourceOrders);
     }
     void ordersWriteExit(){
         up(Sems.resourceOrders);
-        down(Sems.wmutexOrders);
+        down(Sems.writeMutexOrders);
         down(Sems.writeOrdersCount);
         if(getSemVal(Sems.writeOrdersCount,0)==0)
             up(Sems.readTryOrders);
-        up(Sems.wmutexOrders);
+        up(Sems.writeMutexOrders);
     }
     void menuReadEntry(){
         down(Sems.readTryMenu);
-        down(Sems.rmutexMenu);
-        up(Sems.readMenuCount);
-        if(getSemVal(Sems.readMenuCount,0)==1)
+        down(Sems.readMutexMenu);
+        up(Sems.menuReaderCounter);
+        if(getSemVal(Sems.menuReaderCounter,0)==1)
             down(Sems.resourceMenu);
-        up(Sems.rmutexMenu);
+        up(Sems.readMutexMenu);
         up(Sems.readTryMenu);
     }
     void menuReadExit(){
-        down(Sems.rmutexMenu);
-        down(Sems.readMenuCount);
-        if(getSemVal(Sems.readMenuCount,0)==0)
+        down(Sems.readMutexMenu);
+        down(Sems.menuReaderCounter);
+        if(getSemVal(Sems.menuReaderCounter,0)==0)
             up(Sems.resourceMenu);
-        up(Sems.rmutexMenu);
+        up(Sems.readMutexMenu);
     }
     void ordersReadEntry(){
         down(Sems.readTryOrders);
-        down(Sems.rmutexOrders);
-        up(Sems.readOrdersCount);
-        if(getSemVal(Sems.readOrdersCount,0)==1)
+        down(Sems.readMutexOrders);
+        up(Sems.orderReaderCounter);
+        if(getSemVal(Sems.orderReaderCounter,0)==1)
             down(Sems.resourceOrders);
-        up(Sems.rmutexOrders);
+        up(Sems.readMutexOrders);
         up(Sems.readTryOrders);
     }
     void ordersReadExit(){
-        down(Sems.rmutexOrders);
-        down(Sems.readOrdersCount);
-        if(getSemVal(Sems.readOrdersCount,0)==0)
+        down(Sems.readMutexOrders);
+        down(Sems.orderReaderCounter);
+        if(getSemVal(Sems.orderReaderCounter,0)==0)
             up(Sems.resourceOrders);
-        up(Sems.rmutexOrders);
+        up(Sems.readMutexOrders);
     }
 };
 

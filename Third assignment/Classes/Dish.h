@@ -60,7 +60,7 @@ public:
     }
     int getTotal() {return totalOrders;}
     int getAmountOfOrd(){return totalOrders;}
-    void addOneToTotalOrders() { totalOrders++; }
+    void addOneToTotalOrders(int am) { totalOrders += am; }
 };
 
 #endif

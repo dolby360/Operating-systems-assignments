@@ -33,12 +33,24 @@ int main(int argc,char **argv){
     strcpy(msg,"Main process starts creating sub-processes");
     mng.printTimeWithMsg(msg);
 
-    pid = mng.execWaiter();
+    pid = mng.execWaiterAndCust();
 
     if(pid != 0){
-        mng.execCust(pid);
         //Here the parent waits for the sub-processes to end
         while ((waitpid(-1, &stat, 0)) > 0);
+        menu1->printManu();
+        int price = 0;
+        int totalOrd = 0;
+        menu1->sumTotalOrdersAndPrices(totalOrd,price);
+
+        sprintf(msg,"Total orders %d, for an amount %d NIL",totalOrd,price);
+        mng.printTimeWithMsg(msg);
+
+        sprintf(msg,"Main ID %d end work",getpid());
+        mng.printTimeWithMsg(msg);
+
+        sprintf(msg,"End of simulation");
+        mng.printTimeWithMsg(msg);
     }
     return OK;
 }

@@ -47,11 +47,17 @@ public:
     string getDishNameById(int i){
         return allDish[i].getName(i);
     }
-    void increaseAmountOfOrdersOfA_Dish(int i){
-        allDish[i].addOneToTotalOrders();
+    void increaseAmountOfOrdersOfA_Dish(int dishNumber,int amount){
+        allDish[dishNumber].addOneToTotalOrders(amount);
     }
     void howManyOfThisWasOrdered(int i){
         allDish[i].getAmountOfOrd();
+    }
+    void sumTotalOrdersAndPrices(int &total,int &price){
+        for(int i = 0; i < numOfDish;i++){
+            total += allDish[i].getAmountOfOrd();
+            price += allDish[i].getPrice();
+        }
     }
 };
 

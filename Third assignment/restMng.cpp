@@ -29,17 +29,15 @@ void restMng::waiterProcess(int wId){
     srand(static_cast <unsigned> (time(0)) ^ (getpid() << 16));
     int custumerIdForOrder = -1;
     char msg[128];
-    bool condition = true; 
     int orderNumber;
     char dishOrd[64];
-    int amountOfItemsOrdered;
     down(Sems.stdOutMutex);
     memset(msg,'\0',64);
     sprintf(msg,"Waiter %d: created PID %d PPID %d",wId,getpid(),getppid());
     mng.printTimeWithMsg(msg);
 	up(Sems.stdOutMutex);
 
-    while(WeAreGoodWithTime()){
+    while(true){
         sleep(util::getRandomNumberBetweenTwoWithaChanceOfHalf(1,2));
         //Critical section READ FROM ORDERS
         ordersReadEntry();
@@ -47,54 +45,43 @@ void restMng::waiterProcess(int wId){
         ordersReadExit();
         //Critical section done READ FROM ORDERS
 
-        if(custumerIdForOrder == -1){
-            continue;
+        if(getSemVal(Sems.countAllClients,0)==0){
+            if(custumerIdForOrder == -1){
+                break;
+            }
         }
-        //--------------------------------GET ORDER NUMBER AND AMOUNT---------------------------------
+        if(custumerIdForOrder == -1){
+                continue;
+        }
+
         //Critical section READ FROM ORDERS
         ordersReadEntry();
         orderNumber = ord->getOrderNumber(custumerIdForOrder);
         ordersReadExit();
         //Critical section done READ FROM ORDERS
 
-        //Critical section READ FROM ORDERS
-        ordersReadEntry();
-        int amount = ord->getAmountOfOrders(custumerIdForOrder);
-        ordersReadExit();
-        //Critical section done READ FROM ORDERS
-        //---------------------------------------------------------------------------------------------
-        
-        //Critical section WRITE TO ORDERS
-        ordersWriteEntry();
-        ord->setDown(custumerIdForOrder);
-        ordersWriteExit();
-        //Critical section WRITE TO ORDERS ends
-        
-        // //Critical section WRITE TO STDOUT
-        // down(Sems.stdOutMutex);
-        // printf("pid = %d\ncustomer id =%d\norder number =%d\namount = %d\n",getpid(),custumerIdForOrder,orderNumber,amount);
-        // up(Sems.stdOutMutex);
-        // //Critical section WRITE TO STDOUT done 
-
         //Critical section WRITE TO MENU
         menuWriteEntry();
-        menu1->increaseAmountOfOrdersOfA_Dish(orderNumber);
-        menuWriteExit();
-        //Critical section done WRITE TO MENU
+        //Critical section WRITE TO ORDERS
+        ordersWriteEntry();
 
-        //Critical section READ FROM MENU
-        menuReadEntry();
-        strcpy(dishOrd,menu1->getDishNameById(orderNumber).c_str());
-        menuReadExit();
-        //Critical section done READ FROM MENU
+        int amount = ord->getAmountOfOrders(custumerIdForOrder);
+        ord->setDown(custumerIdForOrder);
+
+        menu1->increaseAmountOfOrdersOfA_Dish(orderNumber,amount);
 
         //Critical section WRITE TO STDOUT
         down(Sems.stdOutMutex);
+        strcpy(dishOrd,menu1->getDishNameById(orderNumber).c_str());
         sprintf(msg,"Waiter ID %d: performs the order of customer ID %d (%d %s)",wId,custumerIdForOrder,amount,dishOrd);
         printTimeWithMsg(msg);
         up(Sems.stdOutMutex);
         //Critical section WRITE TO STDOUT done 
 
+        ordersWriteExit();
+        //Critical section WRITE TO ORDERS ends
+        menuWriteExit();
+        //Critical section done WRITE TO MENU
     }
 }
 void restMng::customerProcess(int custId){
@@ -165,8 +152,9 @@ void restMng::customerProcess(int custId){
             }
         }
     }
+    down(Sems.countAllClients);
 }
-pid_t restMng::execWaiter(){
+pid_t restMng::execWaiterAndCust(){
 	pid_t pid = fork();
 	for(int i = 0; i< simuArgs.witersCount ; i++){	
 		if (pid == 0){	
@@ -176,16 +164,15 @@ pid_t restMng::execWaiter(){
             pid = fork();
         }
     }
-	return pid;
-}
-
-void restMng::execCust(pid_t pid){
-	for(int i=0; i< simuArgs.cusCount; i++){
-		if (!(pid=fork())){	
-			customerProcess(i);
-            break;
-		}  
+    if(pid){
+        for(int i=0; i< simuArgs.cusCount; i++){
+            if (!(pid=fork())){	
+                customerProcess(i);
+                break;
+            }  
+        }
     }
+    return pid;
 }
 
 void restMng::printTimeWithMsg(char *msg){

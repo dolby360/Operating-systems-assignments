@@ -12,7 +12,9 @@ typedef enum dishes{
     Blini = 5,
     Caviar = 6,
     Kasha = 7,
-    Kulich = DISH_AMOUNT
+    kuskus = 8,
+    Kulich = 9,
+
 }dishes;
 
 class Dish{
@@ -37,6 +39,7 @@ public:
             case Caviar:    name = "Caviar";    break;
             case Kasha:     name = "Kasha";     break;
             case Kulich:    name = "Kulich";    break;
+            case kuskus:    name = "kuskus";    break;
         }
     }
 	

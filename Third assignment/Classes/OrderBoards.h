@@ -28,14 +28,14 @@ class Orders
 	~Orders(){}
 	bool getCustomerStatus(int customerId){return custs[customerId].getDone();}
 	
-	void picRandomItemAndAmount_andPlaceOrder(int &amount,int custID,bool TheCustomerWantToOrder){
+	void picRandomItemAndAmount_andPlaceOrder(int &amount,int custID,bool TheCustomerWantToOrder,int maxDish){
 		amount = util::chooseRandomlyBetweenRange(1,4);
 		if(TheCustomerWantToOrder){
-			custs[custID].setItem(util::chooseRandomlyBetweenRange(0,DISH_AMOUNT));
+			custs[custID].setItem(util::chooseRandomlyBetweenRange(0,maxDish));
 			custs[custID].setAmount(amount);
 			custs[custID].setDone(false);
 		}else{
-			custs[custID].setItem(util::chooseRandomlyBetweenRange(0,DISH_AMOUNT));
+			custs[custID].setItem(util::chooseRandomlyBetweenRange(0,maxDish));
 		}
 	}	
 	int getAmountOfOrders(int CI){

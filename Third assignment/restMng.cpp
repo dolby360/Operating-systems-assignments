@@ -31,6 +31,7 @@ void restMng::waiterProcess(int wId){
     char msg[128];
     int orderNumber;
     char dishOrd[64];
+    float slp;
     down(Sems.stdOutMutex);
     memset(msg,'\0',64);
     sprintf(msg,"Waiter %d: created PID %d PPID %d",wId,getpid(),getppid());
@@ -38,38 +39,33 @@ void restMng::waiterProcess(int wId){
 	up(Sems.stdOutMutex);
 
     while(true){
-        sleep(util::getRandomNumberBetweenTwoWithaChanceOfHalf(1,2));
-        //Critical section READ FROM ORDERS
-        ordersReadEntry();
-        custumerIdForOrder = ord->checkForOrders();
-        ordersReadExit();
-        //Critical section done READ FROM ORDERS
+        down(Sems.takeaNap);
+        slp = 1000000*(1 + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (2-1))));
+        up(Sems.takeaNap);
+        usleep(slp);
+
 
         if(getSemVal(Sems.countAllClients,0)==0){
+            custumerIdForOrder = ord->checkForOrders();
             if(custumerIdForOrder == -1){
                 break;
             }
         }
-        if(custumerIdForOrder == -1){
-                continue;
-        }
-
-        //Critical section READ FROM ORDERS
-        ordersReadEntry();
-        orderNumber = ord->getOrderNumber(custumerIdForOrder);
-        ordersReadExit();
-        //Critical section done READ FROM ORDERS
-
         //Critical section WRITE TO MENU
         menuWriteEntry();
         //Critical section WRITE TO ORDERS
         ordersWriteEntry();
-
+        custumerIdForOrder = ord->checkForOrders();
+        if(custumerIdForOrder != -1){
+            orderNumber = ord->getOrderNumber(custumerIdForOrder);
+        }else{
+            ordersWriteExit();
+            menuWriteExit();
+            continue;
+        }
         int amount = ord->getAmountOfOrders(custumerIdForOrder);
         ord->setDown(custumerIdForOrder);
-
         menu1->increaseAmountOfOrdersOfA_Dish(orderNumber,amount);
-
         //Critical section WRITE TO STDOUT
         down(Sems.stdOutMutex);
         strcpy(dishOrd,menu1->getDishNameById(orderNumber).c_str());
@@ -92,7 +88,7 @@ void restMng::customerProcess(int custId){
     char msg[128];
     int orderNumber;
     int amountOfItemsOrdered;
-    int slp;
+    float slp;
     //Critical section WRITE TO STDOUT
     down(Sems.stdOutMutex);
     memset(msg,'\0',128);
@@ -104,9 +100,10 @@ void restMng::customerProcess(int custId){
     while(WeAreGoodWithTime()){
         
         down(Sems.takeaNap);
-        slp = (3 + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (7-3))));
+        slp = 1000000*(3 + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (6-3))));
+        // printf("%f\n",slp);
         up(Sems.takeaNap);
-        sleep(slp);
+        usleep(slp);
 
         //Critical section READ FROM ORDERS
         ordersReadEntry();
@@ -119,7 +116,7 @@ void restMng::customerProcess(int custId){
 
             //Critical section WRITE TO ORDERS
             ordersWriteEntry();
-            ord->picRandomItemAndAmount_andPlaceOrder(amountOfItemsOrdered,custId,customerWantsToOrderSomething);//Here we also set the dish
+            ord->picRandomItemAndAmount_andPlaceOrder(amountOfItemsOrdered,custId,customerWantsToOrderSomething,simuArgs.numOfItems);//Here we also set the dish
             ordersWriteExit();
             //Critical section done WRITE TO ORDERS
 

@@ -20,7 +20,6 @@
 #include "utility/util.h"
 #define OK 0
 
-#define DISH_AMOUNT 8
 #define SIM_TIME 0
 #define NUM_OF_ITEMS 1
 #define CUS_COUNT 2

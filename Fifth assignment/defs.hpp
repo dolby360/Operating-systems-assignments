@@ -5,6 +5,7 @@
 #include <fstream>
 #include <pthread.h>
 #include <string>
+
 extern "C"	{ 
     #include "util.h"
 }
@@ -12,5 +13,7 @@ extern "C"	{
 #define MAX_THREAD 10
 #define MAX_IP_LEN 1025
 #define MAX_IPS 10
+
+using namespace std;
 
 #endif

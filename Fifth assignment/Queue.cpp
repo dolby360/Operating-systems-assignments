@@ -10,31 +10,30 @@ SafeArray::~SafeArray()
 		delete[] arr;
 }
 
-Result::~Result()
-{
-	if(ips)
-	{	
-		for(int i=0;i<ipsSize;i++)
-			if(ips[i])
+hostsAndIPstorage::~hostsAndIPstorage(){
+	if(ips){	
+		for(int i=0; i < ipsSize; i++){
+			if(ips[i]){
 				delete []ips[i];
-		delete[] ips;
+			}else{
+				delete []ips;
+			}
+		}
 	}
 }
 
-Result* SafeArray::getByHostName(string hn)
-{
-	Result* obj=NULL;
-	pthread_mutex_lock(&mutex); //lock
-	for(int i=0;i<index;i++)
-		if(arr[i]->getHostName()==hn)
-		{
+hostsAndIPstorage* SafeArray::getByHostName(string hn){
+	hostsAndIPstorage* obj = NULL;
+	pthread_mutex_lock(&mutex); 
+	for(int i=0; i < index; i++)
+		if(arr[i]->getHostName() == hn){
 			obj=arr[i];
 			break;
 		}
 	pthread_mutex_unlock(&mutex); //unlock
 	return obj;
 }
-void SafeArray::add(Result* r){
+void SafeArray::add(hostsAndIPstorage* r){
 	pthread_mutex_lock(&mutex); //lock
 	arr[index]=r;
 	index++;

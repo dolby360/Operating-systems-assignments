@@ -13,20 +13,19 @@ void ResolverTask::Action(void *arg)
 	ResolverTask *rt=(ResolverTask *)arg;
 	string hn=rt->hostName;
 	pthread_cond_t *cond=rt->cond;
-	Result *res;
+	hostsAndIPstorage *res;
 	char **ips=new char*[MAX_IPS];
-	for(int i=0;i<MAX_IPS;i++)ips[i]=new char[MAX_IP_LEN];
+	for(int i=0; i < MAX_IPS; i++)ips[i] = new char[MAX_IP_LEN];
 	int adressesfound;
 	
-	if(dnslookupAll(hn.c_str(), ips, MAX_IPS, &adressesfound) == UTIL_SUCCESS)
-	{
+	if(dnslookupAll(hn.c_str(), ips, MAX_IPS, &adressesfound) == UTIL_SUCCESS){
 		char **fixedips=new char*[adressesfound];
 		for(int i=0;i<adressesfound;i++) fixedips[i]=ips[i];
 		
-		res=new Result(hn,fixedips,adressesfound);
+		res=new hostsAndIPstorage(hn,fixedips,adressesfound);
 	}
 	else
-		res=new Result(hn,NULL,adressesfound);
+		res=new hostsAndIPstorage(hn,NULL,adressesfound);
 
 	for(int i=adressesfound;i<MAX_IPS;i++) delete []ips[i];
 	
@@ -45,7 +44,7 @@ void RequestTask::Action(void *arg)
 		queue->push(rt);
 		pthread_mutex_lock(consoleMutex);
 		pthread_cond_wait(&cond,consoleMutex);
-		Result *r = result->getByHostName(name);
+		hostsAndIPstorage *r = result->getByHostName(name);
 		char **ips=r->getips();
 		int totalIps=r->getipsSize();
 		cout << name << ", ";

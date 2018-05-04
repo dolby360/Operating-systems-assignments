@@ -52,7 +52,11 @@ class ResolverTask:public Task
 		string hostName;
 		pthread_cond_t *cond;
 	public:
-		ResolverTask(string n, SafeArray *r, pthread_cond_t *c){hostName=n;result=r;cond=c;};
+		ResolverTask(string n, SafeArray *r, pthread_cond_t *c){
+			hostName = n;
+			result = r;
+			cond =c;
+		};
 		virtual void Action(void *arg);
 		~ResolverTask(){}
 };

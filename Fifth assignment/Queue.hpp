@@ -4,18 +4,27 @@
 
 #include "defs.hpp"
 
-class Result
-{
+class hostsAndIPstorage{
 	private:
 		string hostName;
 		char** ips;
 		int ipsSize;
 	public:
-		~Result();
-		Result(string n, char** ip ,int s){hostName=n;ips=ip;ipsSize=s;};
-		string getHostName(){return hostName;};
-		char** getips(){return ips;};
-		int getipsSize(){return ipsSize;};
+		~hostsAndIPstorage();
+		hostsAndIPstorage(string host_name, char** ip ,int s){
+			hostName = host_name;
+			ips = ip;
+			ipsSize = s;
+		};
+		string getHostName(){
+			return hostName;
+		};
+		char** getips(){
+			return ips;
+		};
+		int getipsSize(){
+			return ipsSize;
+		};
 };
 
 class SafeArray{
@@ -23,18 +32,18 @@ class SafeArray{
         int size;
         int index=0;
         char* outputFile;
-        Result **arr;
-        pthread_mutex_t mutex=PTHREAD_MUTEX_INITIALIZER;
+        hostsAndIPstorage **arr;
+        pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
     public:
     	SafeArray(int s,char* of){
 			size = s; 
-			arr = new Result*[s];
+			arr = new hostsAndIPstorage*[s];
 			outputFile = of;
 		};
     	~SafeArray();
-		Result* getByIndex(int i);
-		Result* getByHostName (string hn);
-		void add(Result* r);
+		hostsAndIPstorage* getByIndex(int i);
+		hostsAndIPstorage* getByHostName(string hn);
+		void add(hostsAndIPstorage* r);
 		bool isFull();
 		char* getoutputFile(){return outputFile;};
 		int getSize(){return size;};
@@ -76,17 +85,12 @@ class SafeQeueu
         bool isEmpty();
 };
 
-
-
-
-
-
 template <class T>
 bool SafeQeueu<T>::isEmpty(){
 	bool f;
-	pthread_mutex_lock(&mutex); //lock
+	pthread_mutex_lock(&mutex);
 	f=(size==0);
-	pthread_mutex_unlock(&mutex); //unlock
+	pthread_mutex_unlock(&mutex);
 	return f;
 }
 
@@ -95,28 +99,26 @@ void SafeQeueu<T>::push(T d){
 	Node<T> *temp = new Node<T>();
 	temp->data=d;
 	temp->next=NULL;
-	pthread_mutex_lock(&mutex); //lock
+	pthread_mutex_lock(&mutex);
 	if(front==NULL)
 		front=temp;
 	else
 		rear->next=temp;
 	rear=temp;
 	size++;
-	pthread_mutex_unlock(&mutex); //unlock
+	pthread_mutex_unlock(&mutex);
 }
 
 template <class T>
 T SafeQeueu<T>::pop(){
-	pthread_mutex_lock(&mutex); //lock
+	pthread_mutex_lock(&mutex); 
 	Node<T> *temp=front;
 	front=front->next;
 	size--;
-	pthread_mutex_unlock(&mutex); //unlock
+	pthread_mutex_unlock(&mutex);
 	T d=temp->data;
 	delete temp;
 	return d;
 }
-
-
 
 #endif

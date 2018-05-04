@@ -33,6 +33,7 @@ class storageManager{
 		char* outputFile;
         hostsAndIPstorage **storage;
         int index;
+		//This mutex helps us to make a safe queue
         pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
     public:
     	storageManager(int _size,char* of){
@@ -71,9 +72,10 @@ class Node{
 template <class T>
 class SafeQeueu{
 	private:
-        Node<T> *rear=NULL;
-        Node<T> *front=NULL;
+        Node<T> *back = NULL;
+        Node<T> *front = NULL;
         int size = 0;
+		//This mutex helps us to make a safe queue
         pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
     public:
@@ -94,16 +96,19 @@ bool SafeQeueu<T>::isEmpty(){
 }
 
 template <class T>
-void SafeQeueu<T>::push(T d){
-	Node<T> *temp = new Node<T>();
-	temp->data=d;
-	temp->next=NULL;
+void SafeQeueu<T>::push(T thread){
+	Node<T> *toPush = new Node<T>();
+	//Making node to push in the queue
+	toPush->data = thread;
+	toPush->next = NULL;
+	//The pushing must to be safe
 	pthread_mutex_lock(&mutex);
-	if(front==NULL)
-		front=temp;
-	else
-		rear->next=temp;
-	rear=temp;
+	if(front==NULL){
+		front=toPush;
+	}else{
+		back->next = toPush;
+	}
+	back = toPush;
 	size++;
 	pthread_mutex_unlock(&mutex);
 }
@@ -111,6 +116,7 @@ void SafeQeueu<T>::push(T d){
 template <class T>
 T SafeQeueu<T>::pop(){
 	pthread_mutex_lock(&mutex); 
+	//Because this is FIFO
 	Node<T> *temp = front;
 	front = front->next;
 	size--;

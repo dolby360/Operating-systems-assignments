@@ -2,7 +2,7 @@
 
 storageManager::~storageManager(){
 	pthread_mutex_destroy(&mutex);
-	for(int i=0;i<size;i++){
+	for(int i=0; i < size; i++){
 		if(storage[i]){
 			delete storage[i];
 		}
@@ -29,15 +29,16 @@ hostsAndIPstorage* storageManager::getByHostName(string host_name){
 	pthread_mutex_lock(&mutex); 
 	for(int i=0; i < index; i++)
 		if(storage[i]->getHostName() == host_name){
-			obj=storage[i];
-			break;
+			obj = storage[i];
+			pthread_mutex_unlock(&mutex);
+			return obj;
 		}
-	pthread_mutex_unlock(&mutex); //unlock
+	pthread_mutex_unlock(&mutex); 
 	return obj;
 }
 void storageManager::add(hostsAndIPstorage* arr){
-	pthread_mutex_lock(&mutex); //lock
+	pthread_mutex_lock(&mutex);
 	storage[index] = arr;
 	index++;
-	pthread_mutex_unlock(&mutex); //unlock
+	pthread_mutex_unlock(&mutex);
 }

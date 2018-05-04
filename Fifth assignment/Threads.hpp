@@ -4,71 +4,73 @@
 #include "Queue.hpp"
 #include <unistd.h>
 
-class ThreadPool
-{
+class ThreadPool{
 	private:
 		SafeQeueu<Task*> *queue = new SafeQeueu<Task*>;
-		pthread_t *threads;
 		pthread_attr_t attr;
 		pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+		pthread_t *threads;
 		int numOfThreads;
-		bool stopflag=false;
+		bool killMe = false;
 		
 	public:
-		ThreadPool(int n);
 		ThreadPool(int n, SafeQeueu<Task*> *q);
+		ThreadPool(int n);
 		~ThreadPool();
 		void addTask(Task *t){
 			queue->push(t);
 			};
+		void stop(){ killMe = true;};
 		void start();
-		void stop(){stopflag=true;};
+
 		
-		
-		static void* workingThread(void *data)
-		{
-			ThreadPool *tp=(ThreadPool*)data;
-			SafeQeueu<Task*> *queue= (SafeQeueu<Task*>*)(tp->queue);
-			pthread_mutex_t *mutex= (pthread_mutex_t*)&(tp->mutex);
-			bool *stopflag=&(tp->stopflag);
+		//The spawning task can't be non static...
+		//Something with c signature....
+		static void* startWorking(void *data){
+			//The way we get over this, is by sending the instance.
+			//hahhahahahaha 
+			ThreadPool *instanceOfTheThreadPool = (ThreadPool*)data;
+			SafeQeueu<Task*> *queue= (SafeQeueu<Task*>*)(instanceOfTheThreadPool->queue);
+			pthread_mutex_t *mutex = (pthread_mutex_t*)&(instanceOfTheThreadPool->mutex);
+			bool *killMe = &(instanceOfTheThreadPool->killMe);
 			
-			while(!(*stopflag)){
-				pthread_mutex_lock(mutex); //lock
+			while(!(*killMe)){
+				pthread_mutex_lock(mutex);
 				if(!queue->isEmpty()){
-					Task *t=(Task*)queue->pop();
-					pthread_mutex_unlock(mutex); //unlock
+					Task *t = (Task*)queue->pop();
+					pthread_mutex_unlock(mutex);
 					t->Action(t);	
 				}else{
-					pthread_mutex_unlock(mutex); //unlock	
+					pthread_mutex_unlock(mutex);	
 				}
 			}
 			pthread_exit(NULL);
 			return NULL;
 		}
 };
-class ResolverTask:public Task
-{
+
+class ResolverTask:public Task{
 	private:
 		string hostName;
 		pthread_cond_t *cond;
 	public:
-		ResolverTask(string n, storageManager *r, pthread_cond_t *c){
-			hostName = n;
-			result = r;
-			cond =c;
+		ResolverTask(string host_name, storageManager * storage, pthread_cond_t *_cond){
+			hostName = host_name;
+			result = storage;
+			cond = _cond;
 		};
-		virtual void Action(void *arg);
+		//Implementing the pure virtual function.  
+		void Action(void *arg);
 		~ResolverTask(){}
 };
 
-class RequestTask:public Task
-{
+class RequestTask:public Task {
 	private:
 		char* fileName;
 		SafeQeueu<Task*> *queue;
 		pthread_mutex_t *consoleMutex;
 	public:
-		RequestTask(char* name, SafeQeueu<Task*> *q, storageManager *r, pthread_mutex_t *cm);
+		RequestTask(char* name, SafeQeueu<Task*> *_queue, storageManager *storage, pthread_mutex_t *cm);
 		virtual void Action(void *arg);
 		virtual char* getName() {return fileName;};
 		~RequestTask(){}

@@ -1,20 +1,22 @@
 #ifndef QUEUE_HPP
 #define QUEUE_HPP
 
-
 #include "defs.hpp"
 
 class hostsAndIPstorage{
 	private:
 		string hostName;
 		char** ips;
-		int ipsSize;
+		int IPsAmountForThisHost;
 	public:
 		~hostsAndIPstorage();
-		hostsAndIPstorage(string host_name, char** ip ,int s){
+		hostsAndIPstorage(string host_name, char** ip ,int amount){
 			hostName = host_name;
 			ips = ip;
-			ipsSize = s;
+			IPsAmountForThisHost = amount;
+		};
+		int getIPamount(){
+			return IPsAmountForThisHost;
 		};
 		string getHostName(){
 			return hostName;
@@ -22,37 +24,37 @@ class hostsAndIPstorage{
 		char** getips(){
 			return ips;
 		};
-		int getipsSize(){
-			return ipsSize;
-		};
+
 };
 
-class SafeArray{
+class storageManager{
 	private:       
         int size;
-        int index=0;
-        char* outputFile;
-        hostsAndIPstorage **arr;
+		char* outputFile;
+        hostsAndIPstorage **storage;
+        int index;
         pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
     public:
-    	SafeArray(int s,char* of){
-			size = s; 
-			arr = new hostsAndIPstorage*[s];
+    	storageManager(int _size,char* of){
+			index = 0;
+			storage = new hostsAndIPstorage*[_size];
 			outputFile = of;
+			size = _size; 
 		};
-    	~SafeArray();
+    	~storageManager();
+
+		hostsAndIPstorage* getByHostName(string host_name);
 		hostsAndIPstorage* getByIndex(int i);
-		hostsAndIPstorage* getByHostName(string hn);
-		void add(hostsAndIPstorage* r);
-		bool isFull();
 		char* getoutputFile(){return outputFile;};
 		int getSize(){return size;};
+		void add(hostsAndIPstorage* arr);
+		bool isFull();
 };
 
 class Task
 {
 	protected:
-		SafeArray *result;
+		storageManager *result;
 	public:
         //pure virtual class to make this class abstract.
 		virtual void Action(void *arg) = 0;
@@ -60,20 +62,18 @@ class Task
 };
 
 template <class T>
-class Node
-{
+class Node{
 	public:
 		T data;
 		Node *next;
 };
 
 template <class T>
-class SafeQeueu
-{
+class SafeQeueu{
 	private:
         Node<T> *rear=NULL;
         Node<T> *front=NULL;
-        int size=0;
+        int size = 0;
         pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
     public:
@@ -87,11 +87,10 @@ class SafeQeueu
 
 template <class T>
 bool SafeQeueu<T>::isEmpty(){
-	bool f;
 	pthread_mutex_lock(&mutex);
-	f=(size==0);
+	bool full = (size==0);
 	pthread_mutex_unlock(&mutex);
-	return f;
+	return full;
 }
 
 template <class T>
@@ -112,11 +111,11 @@ void SafeQeueu<T>::push(T d){
 template <class T>
 T SafeQeueu<T>::pop(){
 	pthread_mutex_lock(&mutex); 
-	Node<T> *temp=front;
-	front=front->next;
+	Node<T> *temp = front;
+	front = front->next;
 	size--;
 	pthread_mutex_unlock(&mutex);
-	T d=temp->data;
+	T d = temp->data;
 	delete temp;
 	return d;
 }

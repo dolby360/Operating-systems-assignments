@@ -52,7 +52,7 @@ class ResolverTask:public Task
 		string hostName;
 		pthread_cond_t *cond;
 	public:
-		ResolverTask(string n, SafeArray *r, pthread_cond_t *c){
+		ResolverTask(string n, storageManager *r, pthread_cond_t *c){
 			hostName = n;
 			result = r;
 			cond =c;
@@ -68,7 +68,7 @@ class RequestTask:public Task
 		SafeQeueu<Task*> *queue;
 		pthread_mutex_t *consoleMutex;
 	public:
-		RequestTask(char* name, SafeQeueu<Task*> *q, SafeArray *r, pthread_mutex_t *cm);
+		RequestTask(char* name, SafeQeueu<Task*> *q, storageManager *r, pthread_mutex_t *cm);
 		virtual void Action(void *arg);
 		virtual char* getName() {return fileName;};
 		~RequestTask(){}

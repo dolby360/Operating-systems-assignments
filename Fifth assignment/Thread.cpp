@@ -1,6 +1,6 @@
 #include "Threads.hpp"
 
-RequestTask::RequestTask(char* name, SafeQeueu<Task*> *q, SafeArray *r, pthread_mutex_t *cm){
+RequestTask::RequestTask(char* name, SafeQeueu<Task*> *q, storageManager *r, pthread_mutex_t *cm){
 	fileName = name;
 	queue = q;
 	result = r;
@@ -11,21 +11,22 @@ RequestTask::RequestTask(char* name, SafeQeueu<Task*> *q, SafeArray *r, pthread_
 void ResolverTask::Action(void *arg)
 {
 	ResolverTask *rt=(ResolverTask *)arg;
-	string hn=rt->hostName;
+	string host_name = rt->hostName;
 	pthread_cond_t *cond=rt->cond;
 	hostsAndIPstorage *res;
 	char **ips=new char*[MAX_IPS];
 	for(int i=0; i < MAX_IPS; i++)ips[i] = new char[MAX_IP_LEN];
 	int adressesfound;
 	
-	if(dnslookupAll(hn.c_str(), ips, MAX_IPS, &adressesfound) == UTIL_SUCCESS){
+	if(dnslookupAll(host_name.c_str(), ips, MAX_IPS, &adressesfound) == UTIL_SUCCESS){
 		char **fixedips=new char*[adressesfound];
-		for(int i=0;i<adressesfound;i++) fixedips[i]=ips[i];
-		
-		res=new hostsAndIPstorage(hn,fixedips,adressesfound);
+		for(int i=0;i<adressesfound;i++){
+            fixedips[i] = ips[i];
+        }
+		res = new hostsAndIPstorage(host_name,fixedips,adressesfound);
 	}
 	else
-		res=new hostsAndIPstorage(hn,NULL,adressesfound);
+		res=new hostsAndIPstorage(host_name,NULL,adressesfound);
 
 	for(int i=adressesfound;i<MAX_IPS;i++) delete []ips[i];
 	
@@ -46,14 +47,13 @@ void RequestTask::Action(void *arg)
 		pthread_cond_wait(&cond,consoleMutex);
 		hostsAndIPstorage *r = result->getByHostName(name);
 		char **ips=r->getips();
-		int totalIps=r->getipsSize();
+		int totalIps = r->getIPamount();
 		cout << name << ", ";
-		if(!totalIps)
-			cout << "None found!" << endl;
-		else
-		{	
-			for(int i=0; i<totalIps; i++)
-			{
+		if(!totalIps){
+			cout << "No IP was found for this host" << endl;
+        }
+		else{	
+			for(int i=0; i<totalIps; i++){
 				cout << ips[i];
 				if(i<totalIps-1)
 					cout << ", ";
@@ -82,13 +82,10 @@ ThreadPool::ThreadPool(int n, SafeQeueu<Task*> *q)
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 }
 
-void ThreadPool::start()
-{
-	for(int t=0; t<numOfThreads; ++t)
-	{
+void ThreadPool::start(){
+	for(int t=0; t<numOfThreads; ++t){
 		int rc = pthread_create(&threads[t], &attr, workingThread, (void *)this);
-		if (rc)
-		{
+		if (rc){
 			cerr << "ERROR; return code from pthread_create() is " << rc << endl;
 			exit (1);
 		}
@@ -96,24 +93,19 @@ void ThreadPool::start()
 }
 
 
-bool SafeArray::isFull()
-{
-	bool f;
-	pthread_mutex_lock(&mutex); //lock
-	f=(index>=size-1);
-	pthread_mutex_unlock(&mutex); //unlock
-	return f;
+bool storageManager::isFull(){
+	pthread_mutex_lock(&mutex); 
+	bool full = (index >= (size-1));
+	pthread_mutex_unlock(&mutex);
+	return full;
 }
 
-ThreadPool::~ThreadPool()
-{
+ThreadPool::~ThreadPool(){
 	// wait for child threads to finish their work
-	for(int t=0; t<numOfThreads; t++)
-	{	
+	for(int t=0; t<numOfThreads; t++){	
 		void *status;
 		int rc = pthread_join(threads[t], &status);
-		if (rc)
-		{
+		if (rc){
 			cerr << "ERROR; return code from pthread_join() is " << rc << endl;
 			exit(-1);
 		}

@@ -9,7 +9,7 @@ int getNumberOfLinesInAllFiles(int numberOfFiles,char *filesNames[]);
 void checkHowManyAvalibleFiles(int *inputAvailableFiles,int argc, char *argv[]);
 void errorMsgAndExit(string msg);
 RequestTask **assignRequestTasks(int argc, char *argv[], int *reqTaskNum, 
-			SafeQeueu<Task*> *RequestQueue, SafeArray *result,pthread_mutex_t *consoleMutex);
+			SafeQeueu<Task*> *RequestQueue, storageManager *result,pthread_mutex_t *consoleMutex);
 
 int main(int argc, char *argv[]){
     SafeQeueu<Task*> *RequestQueue = new SafeQeueu<Task*>;
@@ -19,9 +19,9 @@ int main(int argc, char *argv[]){
     int inputAvailableFiles = 0;
     int amountOfLines = getNumberOfLinesInAllFiles(argc, argv);
 
-    // ResultArray is shared between the threads
-	SafeArray *resultArray = new SafeArray(amountOfLines, argv[argc-1]);
+	storageManager *resultArray = new storageManager(amountOfLines, argv[argc-1]);
     checkHowManyAvalibleFiles(&inputAvailableFiles,argc,argv);
+    
     reqTaskNum = inputAvailableFiles;
     RequestTask** reqTasks = assignRequestTasks(argc, argv, &reqTaskNum, RequestQueue, resultArray,&consoleMutex);
 
@@ -45,7 +45,7 @@ int main(int argc, char *argv[]){
 }
 
 RequestTask **assignRequestTasks(int argc, char *argv[], int *reqTaskNum, 
-			SafeQeueu<Task*> *RequestQueue, SafeArray *result,pthread_mutex_t *consoleMutex){
+			SafeQeueu<Task*> *RequestQueue, storageManager *result,pthread_mutex_t *consoleMutex){
     RequestTask **tasks=NULL;
     tasks = new RequestTask*[*reqTaskNum];
     for(int i=1, j=0; i<argc-1; i++){

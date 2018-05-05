@@ -1,7 +1,7 @@
 #ifndef QUEUE_HPP
 #define QUEUE_HPP
 
-#include "defs.hpp"
+#include "defs.h"
 
 class hostsAndIPstorage{
 	private:

@@ -10,9 +10,10 @@ extern "C"	{
     #include "util.h"
 }
 
-#define MAX_THREAD 10
-#define MAX_IP_LEN 1025
-#define MAX_IPS 10
+//Limitations according to the instructions.
+#define MAXIMUM_THREADS 10
+#define MAXIMUM_IP_LENGTH 1025
+#define MAXIMUM_IPS 10
 
 using namespace std;
 

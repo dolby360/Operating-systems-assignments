@@ -1,4 +1,4 @@
-#include "Threads.hpp"
+#include "Threads.h"
 
 RequestTask::RequestTask(char* name, SafeQeueu<Task*> *_queue, storageManager *storage, pthread_mutex_t *cm){
 	fileName = name;
@@ -12,11 +12,11 @@ void ResolverTask::Action(void *arg){
 	string host_name = rt->hostName;
 	pthread_cond_t *cond = rt->cond;
 	hostsAndIPstorage *res;
-	char **ips = new char*[MAX_IPS];
-	for(int i = 0; i < MAX_IPS; i++)ips[i] = new char[MAX_IP_LEN];
+	char **ips = new char*[MAXIMUM_IPS];
+	for(int i = 0; i < MAXIMUM_IPS; i++)ips[i] = new char[MAXIMUM_IP_LENGTH];
 	int adressesfound;
 	
-	if(dnslookupAll(host_name.c_str(), ips, MAX_IPS, &adressesfound) == UTIL_SUCCESS){
+	if(dnslookupAll(host_name.c_str(), ips, MAXIMUM_IPS, &adressesfound) == UTIL_SUCCESS){
 		char **fixedips = new char*[adressesfound];
 		for(int i = 0; i < adressesfound; i++){
             fixedips[i] = ips[i];
@@ -26,7 +26,7 @@ void ResolverTask::Action(void *arg){
 	else
 		res = new hostsAndIPstorage(host_name,NULL,adressesfound);
 
-	for(int i = adressesfound; i < MAX_IPS; i++){
+	for(int i = adressesfound; i < MAXIMUM_IPS; i++){
 		delete []ips[i];
 	}
 	
@@ -34,12 +34,10 @@ void ResolverTask::Action(void *arg){
 	pthread_cond_signal(cond);
 }
 
-void RequestTask::Action(void *arg)
-{
+void RequestTask::Action(void *arg){
 	ifstream file(fileName);
 	string name;
-	while (getline(file,name))
-	{
+	while (getline(file,name)){
 		pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
 		ResolverTask *rt = new ResolverTask(name,result,&cond);
 		queue->push(rt);
@@ -65,28 +63,26 @@ void RequestTask::Action(void *arg)
 	file.close();
 }
 
-ThreadPool::ThreadPool(int n)
-{
-	numOfThreads=n;
-	threads=new pthread_t[n];
+ThreadPool::ThreadPool(int _numOfThreads){
+	numOfThreads = _numOfThreads;
+	threads = new pthread_t[_numOfThreads];
 	pthread_attr_init(&attr);
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 }
 
-ThreadPool::ThreadPool(int n, SafeQeueu<Task*> *q)
-{
-	numOfThreads=n;
-	queue=q;
-	threads=new pthread_t[n];
+ThreadPool::ThreadPool(int _numOfThreads, SafeQeueu<Task*> *_queue){
+	numOfThreads = _numOfThreads;
+	queue = _queue;
+	threads=new pthread_t[_numOfThreads];
 	pthread_attr_init(&attr);
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 }
 
 void ThreadPool::start(){
-	for(int t = 0; t < numOfThreads; t++){
-		int rc = pthread_create(&threads[t], &attr, startWorking, (void *)this);
-		if (rc){
-			cerr << "ERROR; return code from pthread_create() is " << rc << endl;
+	for(int i = 0; i < numOfThreads; i++){
+		int Res = pthread_create(&threads[i], &attr, startWorking, (void *)this);
+		if (Res){
+			cerr << "Error with executing work " << Res << endl;
 			exit (1);
 		}
 	}
@@ -102,16 +98,20 @@ bool storageManager::isFull(){
 
 ThreadPool::~ThreadPool(){
 	// wait for child threads to finish their work
-	for(int t=0; t<numOfThreads; t++){	
+	for(int i = 0; i < numOfThreads; i++){	
 		void *status;
-		int rc = pthread_join(threads[t], &status);
-		if (rc){
-			cerr << "ERROR; return code from pthread_join() is " << rc << endl;
+		int Res = pthread_join(threads[i], &status);
+		if (Res){
+			cerr << "Error with join returned: " << Res << endl;
 			exit(-1);
 		}
 	}
-	if(queue) delete queue;
-	if(threads) delete threads;
+	if(queue){
+		delete queue;
+	}
+	if(threads){ 
+		delete threads;
+	}
 	pthread_attr_destroy(&attr);
 	pthread_mutex_destroy(&mutex);
 }

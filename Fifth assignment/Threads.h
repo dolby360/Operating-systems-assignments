@@ -1,7 +1,7 @@
 #ifndef THREADS_HPP
 #define THREADS_HPP
 
-#include "Queue.hpp"
+#include "Queue.h"
 #include <unistd.h>
 
 class ThreadPool{
@@ -14,13 +14,13 @@ class ThreadPool{
 		bool killMe = false;
 		
 	public:
-		ThreadPool(int n, SafeQeueu<Task*> *q);
-		ThreadPool(int n);
+		ThreadPool(int _numOfThreads, SafeQeueu<Task*> *_queue);
+		ThreadPool(int _numOfThreads);
 		~ThreadPool();
 		void addTask(Task *t){
 			queue->push(t);
 			};
-		void stop(){ killMe = true;};
+		void stop(){ killMe = true; };
 		void start();
 
 		

@@ -1,46 +1,30 @@
 #include <stdio.h>
 #include <iostream>
-
-#include "defs.hpp"
-#include "Threads.hpp"
+#include "defs.h"
+#include "Threads.h"
+#include "multi-lookup.h"
 using namespace std;
 
-int getNumberOfLinesInAllFiles(int numberOfFiles,char *filesNames[]);
-void checkHowManyAvalibleFiles(int *inputAvailableFiles,int argc, char *argv[]);
-void errorMsgAndExit(string msg);
-RequestTask **assignRequestTasks(int argc, char *argv[], int *reqTaskNum, 
-			SafeQeueu<Task*> *RequestQueue, storageManager *result,pthread_mutex_t *consoleMutex);
-
 int main(int argc, char *argv[]){
-    SafeQeueu<Task*> *RequestQueue = new SafeQeueu<Task*>;
-	pthread_mutex_t consoleMutex = PTHREAD_MUTEX_INITIALIZER;
-    
-    int reqTaskNum = 0; 
+	int reqTaskNum = 0; 
     int inputAvailableFiles = 0;
     int amountOfLines = getNumberOfLinesInAllFiles(argc, argv);
-
-	storageManager *resultArray = new storageManager(amountOfLines, argv[argc-1]);
+    SafeQeueu<Task*> *RequestQueue = new SafeQeueu<Task*>;
+	pthread_mutex_t consoleMutex = PTHREAD_MUTEX_INITIALIZER;
+    storageManager *resultArray = new storageManager(amountOfLines, argv[argc-1]);
     checkHowManyAvalibleFiles(&inputAvailableFiles,argc,argv);
-    
     reqTaskNum = inputAvailableFiles;
     RequestTask** reqTasks = assignRequestTasks(argc, argv, &reqTaskNum, RequestQueue, resultArray,&consoleMutex);
-
-    ThreadPool *reqTP = new ThreadPool(reqTaskNum);
-	ThreadPool *resTP = new ThreadPool(MAX_THREAD,RequestQueue);
-	
-	reqTP->start();
-	resTP->start();
-	 
-	for(int i=0; i<reqTaskNum; ++i){
-		reqTP->addTask(reqTasks[i]);
-    }	
-		
+    ThreadPool *requestThreadPool = new ThreadPool(reqTaskNum);
+	ThreadPool *resolverThreadPool = new ThreadPool(MAXIMUM_THREADS,RequestQueue);
+	requestThreadPool->start();
+	resolverThreadPool->start();
+	for(int i = 0; i < reqTaskNum; i++){ requestThreadPool->addTask(reqTasks[i]); }	
 	while(!resultArray->isFull());
-	
-	reqTP->stop();
-	resTP->stop();
-	delete reqTP;
-	delete resTP;
+	requestThreadPool->stop();
+	resolverThreadPool->stop();
+	delete requestThreadPool;
+	delete resolverThreadPool;
     return 0;
 }
 

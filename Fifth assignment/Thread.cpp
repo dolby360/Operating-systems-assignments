@@ -55,7 +55,7 @@ void RequestTask::Action(void *arg)
 		else{	
 			for(int i=0; i < IPsAmount; i++){
 				cout << ips[i];
-				if(i<IPsAmount-1)
+				if(i < IPsAmount-1)
 					cout << ", ";
 			}
 			cout << endl;

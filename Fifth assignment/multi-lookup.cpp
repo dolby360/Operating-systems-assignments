@@ -3,6 +3,8 @@
 #include "defs.h"
 #include "Threads.h"
 #include "multi-lookup.h"
+#include "Dumper.h"
+
 using namespace std;
 
 int main(int argc, char *argv[]){
@@ -25,6 +27,9 @@ int main(int argc, char *argv[]){
 	resolverThreadPool->stop();
 	delete requestThreadPool;
 	delete resolverThreadPool;
+
+	DumperThreadPool s(resultArray,argv[argc - 1]);
+
     return 0;
 }
 
@@ -54,7 +59,7 @@ void checkHowManyAvalibleFiles(int *inputAvailableFiles,int argc, char *argv[]){
 			}
 		}
 		if(*inputAvailableFiles == 0){ errorMsgAndExit("No valid input found!"); }
-		else{ /*cout << "number of avilable files -  " << *inputAvailableFiles << endl;*/ }
+		else{ /*cout << "number of avilable files -  " << *inputAvailableFiles << endl; */}
 		ifstream output(argv[argc-1]);
 		if(output.fail()){ errorMsgAndExit("Cannot open the output file - " + string(argv[argc-1]) + "\nYou have to provide output file"); }
 		output.close();

@@ -24,6 +24,14 @@ hostsAndIPstorage::~hostsAndIPstorage(){
 	}
 }
 
+hostsAndIPstorage* storageManager::getByIndex(int i){
+	hostsAndIPstorage* obj;
+	pthread_mutex_lock(&mutex);
+	obj = storage[i];
+	pthread_mutex_unlock(&mutex);
+	return obj;
+}
+
 hostsAndIPstorage* storageManager::getByHostName(string host_name){
 	hostsAndIPstorage* obj = NULL;
 	pthread_mutex_lock(&mutex); 

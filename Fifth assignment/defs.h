@@ -14,6 +14,8 @@ extern "C"	{
 #define MAXIMUM_THREADS 10
 #define MAXIMUM_IP_LENGTH 1025
 #define MAXIMUM_IPS 10
+#define OK 0
+#define ERROR 1
 
 using namespace std;
 

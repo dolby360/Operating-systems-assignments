@@ -8,12 +8,14 @@ class hostsAndIPstorage{
 		string hostName;
 		char** ips;
 		int IPsAmountForThisHost;
+		bool dumped;
 	public:
 		~hostsAndIPstorage();
 		hostsAndIPstorage(string host_name, char** ip ,int amount){
 			hostName = host_name;
 			ips = ip;
 			IPsAmountForThisHost = amount;
+			dumped = false;
 		};
 		int getIPamount(){
 			return IPsAmountForThisHost;
@@ -33,7 +35,7 @@ class storageManager{
 		char* outputFile;
         hostsAndIPstorage **storage;
         int index;
-		//This mutex helps us to make a safe queue
+		//This mutex helps us to make a safe access
         pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
     public:
     	storageManager(int _size,char* of){

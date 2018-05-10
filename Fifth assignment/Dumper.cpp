@@ -15,10 +15,12 @@ DumperThreadPool::DumperThreadPool(storageManager *resultArray,char* _outputFile
         pthread_attr_init(&attr);
         pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 
-        for(int i = 0; i < NUMBER_OF_THREAD_IN_THREAD_POOL; i++){
-            d = new DumperWorker(i,&mutex,myStorage);
+        int temp_arg[NUMBER_OF_THREAD_IN_THREAD_POOL];
 
-            int Res = pthread_create(&dumperThreads[i], &attr, execute, (void *)this);
+        for(int i = 0; i < NUMBER_OF_THREAD_IN_THREAD_POOL; i++){
+            temp_arg[i] = i;
+            d = new DumperWorker(temp_arg[i],&mutex,myStorage,outputFile,sizeOfMyStorage);
+            int Res = pthread_create(&dumperThreads[i], &attr, execute, (void *)d);
             if (Res != OK){
                 cerr << "ERROR with pthread_create " << Res << endl;
                 exit (ERROR);

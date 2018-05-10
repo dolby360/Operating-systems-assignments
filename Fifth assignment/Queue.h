@@ -26,7 +26,8 @@ class hostsAndIPstorage{
 		char** getips(){
 			return ips;
 		};
-
+		void setDumped(){dumped = true;}
+		bool isDumped(){return dumped;}
 };
 
 class storageManager{

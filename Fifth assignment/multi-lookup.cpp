@@ -27,14 +27,11 @@ int main(int argc, char *argv[]){
 	resolverThreadPool->stop();
 	delete requestThreadPool;
 	delete resolverThreadPool;
-
 	DumperThreadPool s(resultArray,argv[argc - 1]);
-
     return 0;
 }
 
-RequestTask **assignRequestTasks(int argc, char *argv[], int *reqTaskNum, 
-			SafeQeueu<Task*> *RequestQueue, storageManager *result,pthread_mutex_t *consoleMutex){
+RequestTask **assignRequestTasks(int argc, char *argv[], int *reqTaskNum, SafeQeueu<Task*> *RequestQueue, storageManager *result,pthread_mutex_t *consoleMutex){
     RequestTask **tasks=NULL;
     tasks = new RequestTask*[*reqTaskNum];
     for(int i=1, j=0; i<argc-1; i++){

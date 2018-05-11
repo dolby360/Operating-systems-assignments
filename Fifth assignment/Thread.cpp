@@ -8,29 +8,30 @@ RequestTask::RequestTask(char* name, SafeQeueu<Task*> *_queue, storageManager *s
 }
 
 void ResolverTask::Action(void *arg){
-	ResolverTask *rt = (ResolverTask *)arg;
-	string host_name = rt->hostName;
-	pthread_cond_t *cond = rt->cond;
+	ResolverTask *myResolverThread = (ResolverTask *)arg;
+	string host_name = myResolverThread->hostName;
+	pthread_cond_t *cond = myResolverThread->cond;
 	hostsAndIPstorage *res;
-	char **ips = new char*[MAXIMUM_IPS];
-	for(int i = 0; i < MAXIMUM_IPS; i++)ips[i] = new char[MAXIMUM_IP_LENGTH];
+	char **ips_arry = new char*[MAXIMUM_IPS];
+	for(int i = 0; i < MAXIMUM_IPS; i++)ips_arry[i] = new char[MAXIMUM_IP_LENGTH];
 	int adressesfound;
 	
-	if(dnslookupAll(host_name.c_str(), ips, MAXIMUM_IPS, &adressesfound) == UTIL_SUCCESS){
-		char **fixedips = new char*[adressesfound];
-		for(int i = 0; i < adressesfound; i++){
-            fixedips[i] = ips[i];
-        }
-		res = new hostsAndIPstorage(host_name,fixedips,adressesfound);
-	}
-	else
-		res = new hostsAndIPstorage(host_name,NULL,adressesfound);
+	bool thereIsAnIpForMe = dnslookupAll(host_name.c_str(), ips_arry, MAXIMUM_IPS, &adressesfound) == UTIL_SUCCESS;
 
-	for(int i = adressesfound; i < MAXIMUM_IPS; i++){
-		delete []ips[i];
+	if(thereIsAnIpForMe){
+		char **allThe_IPs_thisHostHave = new char*[adressesfound];
+		for(int i = 0; i < adressesfound; i++){
+            allThe_IPs_thisHostHave[i] = ips_arry[i];
+        }
+		res = new hostsAndIPstorage(host_name,allThe_IPs_thisHostHave,adressesfound);
+	}else{
+		res = new hostsAndIPstorage(host_name,NULL,adressesfound);
 	}
-	
-	rt->result->add(res);
+	for(int i = adressesfound; i < MAXIMUM_IPS; i++){
+		delete[] ips_arry[i];
+	}
+	delete[] ips_arry;
+	myResolverThread->result->add(res);
 	pthread_cond_signal(cond);
 }
 
@@ -43,24 +44,11 @@ void RequestTask::Action(void *arg){
 		queue->push(rt);
 		pthread_mutex_lock(consoleMutex);
 		pthread_cond_wait(&cond,consoleMutex);
-		hostsAndIPstorage *r = result->getByHostName(name);
-		char **ips = r->getips();
-		int IPsAmount = r->getIPamount();
-		cout << name << ", ";
-		if(!IPsAmount){
-			cout << "No IP was found for this host" << endl;
-        }
-		else{	
-			for(int i=0; i < IPsAmount; i++){
-				cout << ips[i];
-				if(i < IPsAmount-1)
-					cout << ", ";
-			}
-			cout << endl;
-		}
+		cout << ".\n" ;
 		pthread_mutex_unlock(consoleMutex);
 	}
 	file.close();
+	cout << endl;
 }
 
 ThreadPool::ThreadPool(int _numOfThreads){

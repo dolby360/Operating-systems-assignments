@@ -39,12 +39,12 @@ public:
         pthread_mutex_t *mutex = w->getnutex();
         pthread_mutex_lock(mutex);
         char* outputFile = w->getOutputFile();
-        int workerNUmber = w->getThreadNumber();
+        //int workerNUmber = w->getThreadNumber();
         ofstream file(outputFile, ios:: app);
         file.close();
         pthread_mutex_unlock(mutex);
 
-        cout << "\n\n\n\n";
+        // cout << "\n\n\n\n";
         for(int i = 0;i < w->get_sizeOfMyStorage();i++){
             pthread_mutex_lock(mutex);
             hostsAndIPstorage* h_and_ip_storage = w->get_hostsAndIPstorage()[i];
@@ -55,15 +55,22 @@ public:
                 cout << h_and_ip_storage->getHostName();
                 file << ", ";
                 cout << ", ";
-                char** arr = h_and_ip_storage->getips();
-                for(int j = 0; j < h_and_ip_storage->getIPamount(); j++){
-                    file << arr[j];
-                    file << ", ";
-                    cout << ", ";
-                    cout << arr[j];
-                } 
-                file << "\n";
-                cout << "\n";
+
+                if(h_and_ip_storage->getips() != 0){
+                    char** arr = h_and_ip_storage->getips();
+                    for(int j = 0; j < h_and_ip_storage->getIPamount(); j++){
+                        file << arr[j];
+                        cout << arr[j];
+                        file << ", ";
+                        cout << ", ";
+                    } 
+                    file << "\n";
+                    cout << "\n";
+                }else{
+                    file << "Not found any IPs\n";
+                    cout << "Not found any IPs\n";
+                }
+
                 file.close();
                 //cout << i << endl;
             }            

@@ -49,6 +49,18 @@ class ThreadPool{
 		}
 };
 
+class RequestTask:public Task {
+	private:
+		char* fileName;
+		SafeQeueu<Task*> *queue;
+		pthread_mutex_t *consoleMutex;
+	public:
+		RequestTask(char* name, SafeQeueu<Task*> *_queue, storageManager *storage, pthread_mutex_t *cm);
+		virtual void Action(void *arg);
+		virtual char* getName() {return fileName;};
+		~RequestTask(){}
+};
+
 class ResolverTask:public Task{
 	private:
 		string hostName;
@@ -64,16 +76,6 @@ class ResolverTask:public Task{
 		~ResolverTask(){}
 };
 
-class RequestTask:public Task {
-	private:
-		char* fileName;
-		SafeQeueu<Task*> *queue;
-		pthread_mutex_t *consoleMutex;
-	public:
-		RequestTask(char* name, SafeQeueu<Task*> *_queue, storageManager *storage, pthread_mutex_t *cm);
-		virtual void Action(void *arg);
-		virtual char* getName() {return fileName;};
-		~RequestTask(){}
-};
+
 
 #endif

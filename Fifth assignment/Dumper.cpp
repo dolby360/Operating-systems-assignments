@@ -16,7 +16,10 @@ DumperThreadPool::DumperThreadPool(storageManager *resultArray,char* _outputFile
         pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 
         int temp_arg[NUMBER_OF_THREAD_IN_THREAD_POOL];
-
+        
+        //Delete all the content in the file.
+        ofstream f(outputFile, ios:: trunc);
+	    f.close();
         for(int i = 0; i < NUMBER_OF_THREAD_IN_THREAD_POOL; i++){
             temp_arg[i] = i;
             d = new DumperWorker(temp_arg[i],&mutex,myStorage,outputFile,sizeOfMyStorage);

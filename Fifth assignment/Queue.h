@@ -55,8 +55,7 @@ class storageManager{
 		bool isFull();
 };
 
-class Task
-{
+class Task{
 	protected:
 		storageManager *result;
 	public:

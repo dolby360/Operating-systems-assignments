@@ -1,5 +1,5 @@
-#ifndef THREADS_HPP
-#define THREADS_HPP
+#ifndef THREADS_H
+#define THREADS_H
 
 #include "Queue.h"
 #include <unistd.h>

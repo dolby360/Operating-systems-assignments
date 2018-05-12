@@ -8,6 +8,9 @@
 using namespace std;
 
 int main(int argc, char *argv[]){
+
+	cout << "Loading please wait until it will finish." << endl;
+
 	int reqTaskNum = 0; 
     int inputAvailableFiles = 0;
     int amountOfLines = getNumberOfLinesInAllFiles(argc, argv);

@@ -1,22 +1,23 @@
-#ifndef QUEUE_HPP
-#define QUEUE_HPP
+#ifndef QUEUE_H
+#define QUEUE_H
 
 #include "defs.h"
 
 class hostsAndIPstorage{
 	private:
-		string hostName;
 		char** ips;
+		string hostName;	
 		int IPsAmountForThisHost;
 		bool dumped;
 	public:
-		~hostsAndIPstorage();
+		
 		hostsAndIPstorage(string host_name, char** ip ,int amount){
 			hostName = host_name;
 			ips = ip;
 			IPsAmountForThisHost = amount;
 			dumped = false;
 		};
+		~hostsAndIPstorage();
 		int getIPamount(){
 			return IPsAmountForThisHost;
 		};
@@ -32,12 +33,12 @@ class hostsAndIPstorage{
 
 class storageManager{
 	private:       
-        int size;
-		char* outputFile;
-        hostsAndIPstorage **storage;
-        int index;
 		//This mutex helps us to make a safe access
         pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+        int size;
+		char* outputFile;
+        hostsAndIPstorage** storage;
+        int index;
     public:
     	storageManager(int _size,char* of){
 			index = 0;
@@ -64,44 +65,48 @@ class Task{
 		virtual ~Task(){};
 };
 
-template <class T>
-class Node{
-	public:
-		T data;
-		Node *next;
-};
+
+template <typename T> 
+struct LinkedList { 
+	T node;
+	LinkedList *next;
+}; 
 
 template <class T>
 class SafeQeueu{
 	private:
-        Node<T> *back = NULL;
-        Node<T> *front = NULL;
         int size = 0;
 		//This mutex helps us to make a safe queue
         pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-
+        LinkedList<T> *back = NULL;
+        LinkedList<T> *front = NULL;
     public:
     	~SafeQeueu(){
 			pthread_mutex_destroy(&mutex);
 		}
+		T pop();
         void push(T data);
-        T pop();
         bool isEmpty();
 };
 
 template <class T>
 bool SafeQeueu<T>::isEmpty(){
 	pthread_mutex_lock(&mutex);
-	bool full = (size==0);
+	bool full;
+	if(size == 0){
+		full = true;
+	}else{
+		full = false;
+	}
 	pthread_mutex_unlock(&mutex);
 	return full;
 }
 
 template <class T>
 void SafeQeueu<T>::push(T thread){
-	Node<T> *toPush = new Node<T>();
+	LinkedList<T> *toPush = new LinkedList<T>();
 	//Making node to push in the queue
-	toPush->data = thread;
+	toPush->node = thread;
 	toPush->next = NULL;
 	//The pushing must to be safe
 	pthread_mutex_lock(&mutex);
@@ -118,13 +123,14 @@ void SafeQeueu<T>::push(T thread){
 template <class T>
 T SafeQeueu<T>::pop(){
 	pthread_mutex_lock(&mutex); 
-	//Because this is FIFO
-	Node<T> *temp = front;
+	//Because this its a FIFO
+	LinkedList<T> *temp = front;
 	front = front->next;
 	size--;
-	pthread_mutex_unlock(&mutex);
-	T d = temp->data;
+
+	T d = temp->node;
 	delete temp;
+	pthread_mutex_unlock(&mutex);
 	return d;
 }
 

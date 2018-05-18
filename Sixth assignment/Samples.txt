@@ -1,0 +1,28 @@
+echo > a 2> b hello world
+
+cat /etc/issue nosuchfile 2> /dev/null | grep .
+
+cat nosuchfile - 2> /dev/null < /etc/issue &
+
+
+echo kk 0>a 1>b 2>c
+echo kk 0> a 1> b 2> c
+echo kk 0 >a 1 >b 2 >c
+echo kk 0 > a 1 > b 2 > c
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+cat /etc/issue nosuchfile > /dev/null
+cat /etc/issue nosuchfile 1> /dev/null

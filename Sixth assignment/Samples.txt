@@ -10,10 +10,10 @@ echo kk 0> a 1> b 2> c
 echo kk 0 >a 1 >b 2 >c
 echo kk 0 > a 1 > b 2 > c
 
+echo kk 0>a 1>b 2>c | grep "d" 0>a 1>b 2>c
 
 
-
-
+cat 0<deleteme.tst
 
 
 

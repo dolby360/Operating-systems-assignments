@@ -26,6 +26,7 @@ int main(){
 		catch (...){
 			std::cout << "Unknown error!" << std::endl;
 		}
+		com.clearAllFDS();
     }
 
 

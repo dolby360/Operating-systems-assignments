@@ -1,6 +1,10 @@
 #ifndef DEFS_H
 #define DEFS_H
 
+
+
+#include <sys/types.h>
+#include <fcntl.h>
 #include <string>
 #include <unistd.h>
 #include <iostream>
